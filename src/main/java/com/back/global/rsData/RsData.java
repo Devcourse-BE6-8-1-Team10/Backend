@@ -1,4 +1,4 @@
-package com.back.global.entity.rsData;
+package com.back.global.rsData;
 
 public record RsData<T>(String code, String message, T data) {
 
@@ -17,4 +17,3 @@ public record RsData<T>(String code, String message, T data) {
     }
 
 }
-
