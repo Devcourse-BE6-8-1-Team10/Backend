@@ -1,6 +1,6 @@
-package com.example.demo.order.repository;
+package com.example.order.repository;
 
-import com.example.demo.order.entity.DummyEntity;
+import com.example.order.entity.DummyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
