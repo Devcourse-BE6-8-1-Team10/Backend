@@ -26,6 +26,8 @@ dependencies {
     // Lombok
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     // Database drivers
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
