@@ -1,4 +1,4 @@
-package com.back.demo.order.entity;
+package com.back.domain.order.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
