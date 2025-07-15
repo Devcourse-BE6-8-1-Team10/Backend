@@ -1,4 +1,4 @@
-package com.example.demo.global.springDoc;
+package com.back.global.entity.springDoc;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
