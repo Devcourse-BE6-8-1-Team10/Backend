@@ -1,8 +1,11 @@
 package com.back.domain.order.entity;
 
+import com.back.global.entity.BaseEntity;
+import com.back.global.entity.BaseEntityWithTime;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,11 +14,8 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Order {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@SuperBuilder
+public class Order extends BaseEntityWithTime {
 
     //현재 Member가 없으므로 주석처리
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -26,8 +26,6 @@ public class Order {
 
     private String state;
 
-    private LocalDateTime orderTime;
-
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -35,7 +33,6 @@ public class Order {
 //        this.customer = customer;
 //        this.customerAddress = customerAddress;
 //        this.state = state;
-//        this.orderTime = LocalDateTime.now();
 //    }
 
 //    public void addOrderItem(OrderItem orderItem) {

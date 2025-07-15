@@ -1,9 +1,12 @@
 package com.back.domain.order.entity;
 
+import com.back.global.entity.BaseEntity;
+import com.back.global.entity.BaseEntityWithTime;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.awt.*;
 
@@ -12,11 +15,8 @@ import java.awt.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderItem {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@SuperBuilder
+public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Order order;
