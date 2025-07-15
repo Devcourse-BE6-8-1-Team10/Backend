@@ -13,6 +13,7 @@ public class PageDto {
 
     List<ProductDto> items;
     int totalPages;
+    int totalItems;
     int currentPageNo;
     int pageSize;
 
@@ -23,6 +24,7 @@ public class PageDto {
                 .map(ProductDto::new)
                 .toList();
         this.totalPages = productPage.getTotalPages();
+        this.totalItems = (int)productPage.getTotalElements();
         this.currentPageNo = productPage.getNumber()+1; // jpa는 페이지 번호 0부터 시작
         this.pageSize = productPage.getSize();
     }
