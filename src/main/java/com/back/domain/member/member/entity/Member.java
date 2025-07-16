@@ -6,8 +6,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,4 +75,21 @@ public class Member extends BaseEntity {
             throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
         this.name = newName;
     }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getAuthoritiesAsStringList()
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+    }
+
+    private List<String> getAuthoritiesAsStringList() {
+        List<String> authorities = new ArrayList<>();
+
+        if (isAdmin())
+            authorities.add("ROLE_ADMIN");
+
+        return authorities;
+    }
+
 }
