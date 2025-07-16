@@ -15,6 +15,14 @@ public class ProductService {
 
     public Product create(String productName, int price, String imageUrl,
                           String category, String description, boolean orderable) {
+
+        if(productName==null || productName.trim().isEmpty()){
+            throw new IllegalArgumentException("상품명은 필수입니다.");
+        }
+        if(price<0) {
+            throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
+        }
+
         return productRepository.save(
                 Product
                         .builder()
@@ -29,9 +37,9 @@ public class ProductService {
 
     }
 
+    //컨트롤러 에서 유효성 검증함 , 여기서 생략
     public Page<Product> getItems(int page, int pageSize) {
         PageRequest pageRequest = PageRequest.of(page-1, pageSize);
-
 
         return productRepository.findAll(pageRequest);
     }
