@@ -14,13 +14,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -62,7 +61,7 @@ public class ProductControllerTest {
 
     private void checkProducts(List<Product> products, ResultActions resultActions) throws Exception {
 
-        for(int i = 0; i < products.size(); i++) {
+        for (int i = 0; i < products.size(); i++) {
 
             Product product = products.get(i);
 
@@ -81,6 +80,7 @@ public class ProductControllerTest {
 
 
     }
+
     @Test
     @DisplayName("상품 전체 조회 (페이징 없음)")
     void items1() throws Exception {
@@ -97,7 +97,7 @@ public class ProductControllerTest {
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("success"))
-                .andExpect(jsonPath("$.data.items.length()").value( 3)) // 한페이지당 보여줄 상품 개수
+                .andExpect(jsonPath("$.data.items.length()").value(3)) // 한페이지당 보여줄 상품 개수
                 .andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
                 .andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
 
@@ -113,7 +113,7 @@ public class ProductControllerTest {
     void items2() throws Exception {
 
         int page = 1;
-        int pageSize =5;
+        int pageSize = 5;
 
         ResultActions resultActions = mvc
                 .perform(
@@ -127,7 +127,7 @@ public class ProductControllerTest {
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("success"))
-                .andExpect(jsonPath("$.data.items.length()").value( 3)) // 한페이지당 보여줄 글 개수
+                .andExpect(jsonPath("$.data.items.length()").value(3)) // 한페이지당 보여줄 글 개수
                 .andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
                 .andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
 
@@ -188,6 +188,7 @@ public class ProductControllerTest {
 
     }
 
+
     private ResultActions writeRequest(String productName, int price, String imageUrl,
                                        String category,String description, boolean orderable ) throws Exception {
         return mvc
@@ -236,6 +237,88 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.message").value("%d번 상품이 생성되었습니다.".formatted(product.getId())));
 
         checkProduct(resultActions, product);
+
+    }
+
+    private ResultActions modifyRequest(long productId, String productName, int price, String imageUrl,
+                                        String category, String description, boolean orderable) throws Exception {
+        return mvc
+                .perform(
+                        put("/products/%d".formatted(productId))
+                                .content("""
+                                        {
+                                            "productName": "%s",
+                                            "price": %d,
+                                            "imageUrl": "%s",
+                                            "category": "%s",
+                                            "description": "%s",
+                                            "orderable" : true
+                                        }
+                                        """
+                                        .formatted(productName, price, imageUrl, category, description, orderable)
+                                        .stripIndent())
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("상품 수정")
+    void modify1() throws Exception {
+
+        long productId = 17;
+        String productName = "수정된 이름";
+        int price = 100;
+        String imageUrl = "수정된 이미지";
+        String category = "수정된 카테고리";
+        String description = "수정된 설명";
+        boolean orderable = true;
+
+        ResultActions resultActions = modifyRequest(productId, productName, price, imageUrl,
+                category, description, orderable);
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("%d번 상품이 수정되었습니다.".formatted(productId)));
+
+
+        Product product = productService.getItem(productId).get();
+        checkProduct(resultActions, product);
+
+    }
+
+    @Test
+    @DisplayName("상품 수정2 (값 안넣을때)")
+    void modify2() throws Exception {
+
+        long productId = 21;
+        String productName = "";
+        int price = 100;
+        String imageUrl = "";
+        String category = "";
+        String description = "";
+        boolean orderable = true;
+
+        ResultActions resultActions = modifyRequest(productId, productName, price, imageUrl,
+                category, description, orderable);
+
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("""
+                        category-NotBlank-must not be blank
+                        description-NotBlank-must not be blank
+                        imageUrl-NotBlank-must not be blank
+                        productName-NotBlank-must not be blank
+                        """.trim().stripIndent())); //ServiceException에서 필드명을 알파벳 순으로 정렬함, 필드명-코드-메세지 형태
 
     }
 

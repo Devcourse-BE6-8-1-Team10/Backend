@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -56,5 +57,16 @@ public class ProductService {
 
     public Optional<Product> getLatestItem() {
         return productRepository.findTopByOrderByIdDesc(); //상품 id 기준으로 제일 최근 생성된거
+    }
+
+    @Transactional
+    public void modify(Product product, String productName, int price, String imageUrl,
+                       String category, String description, boolean orderable) {
+        product.setProductName(productName);
+        product.setPrice(price);
+        product.setImageUrl(imageUrl);
+        product.setCategory(category);
+        product.setDescription(description);
+        product.setOrderable(orderable);
     }
 }
