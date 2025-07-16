@@ -1,11 +1,9 @@
 package com.back.domain.member.member.entity;
 
 import com.back.domain.member.address.entity.Address;
-import com.back.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -17,8 +15,15 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Member extends BaseEntity {
+public class Member {
     // ------------ [필드] ------------
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
+
     @Email
     @Column(length = 150, nullable = false, unique = true)
     private String email;
@@ -63,6 +68,18 @@ public class Member extends BaseEntity {
     public Member(String email, String password, String name, boolean isAdmin) {
         this(email, password, name);
         this.isAdmin = isAdmin;
+    }
+
+    // new 로 생성하는 경우.
+    public Member(int id, String email, String name){
+        if (email == null || email.trim().isEmpty())
+            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
+
+        this.id = (long) id;
+        this.email = email;
+        this.name = name;
     }
 
     // ------------ [메서드] ------------
