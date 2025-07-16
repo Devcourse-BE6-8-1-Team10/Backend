@@ -15,10 +15,8 @@ public class Address extends BaseEntity {
 
     private Boolean isDefault = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "member_id", referencedColumnName= "id")
+    @ManyToOne(fetch = FetchType.LAZY) //지연 로딩으로 성능 최적화
+    @JoinColumn(name= "member_id", referencedColumnName= "id") //외래키 설정
     private Member member;
-
-
 
 }
