@@ -22,7 +22,8 @@ public record OrderDto(
     public OrderDto(Order order) {
         this(
                 order.getId(),
-                order.getCustomerEmail(),
+                //order.getCustomerEmail(),
+                "email",
                 order.getCreatedDate(),
                 order.getState(),
                 order.getCustomerAddress()
