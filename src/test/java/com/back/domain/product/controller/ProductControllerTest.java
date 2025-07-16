@@ -154,7 +154,7 @@ public class ProductControllerTest {
 
             resultActions
                     .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400-1 Bad Request
-                    .andExpect(jsonPath("$.code").value("400-1"))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
+                    .andExpect(jsonPath("$.code").value("400"))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
                     .andExpect(jsonPath("$.message").exists());
         }
     }
@@ -176,7 +176,7 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ProductController.class))
                 .andExpect(handler().methodName("getItem"))
-                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.code").value("200"))
                 .andExpect(jsonPath("$.message").value("%d번 상품을 조회하였습니다.".formatted(productId)));
 
         Product product = productService.getItem(productId).get();
