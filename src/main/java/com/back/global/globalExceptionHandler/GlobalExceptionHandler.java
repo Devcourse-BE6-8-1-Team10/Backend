@@ -32,12 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<RsData<Void>> handle(ServiceException ex) {
         RsData<Void> rsData = ex.getRsData();
-        int statusCode;
-        try {
-            statusCode = Integer.parseInt(rsData.code().split("-")[0]);
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            statusCode = 400;
-        }
+        int statusCode = rsData.code();
 
         return ResponseEntity.status(statusCode).body(rsData);
     }
@@ -47,7 +42,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RsData<Void>> handle(NoSuchElementException ex) {
         return new ResponseEntity<>(
                 RsData.of(
-                        "404-1",
+                        404,
                         "해당 데이터가 존재하지 않습니다."
                 ),
                 NOT_FOUND
@@ -75,7 +70,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(
                 RsData.of(
-                        "400-1",
+                        400,
                         message
                 ),
                 BAD_REQUEST
@@ -97,7 +92,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(
                 RsData.of(
-                        "400-1",
+                        400,
                         message
                 ),
                 BAD_REQUEST
@@ -109,7 +104,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RsData<Void>> handle(HttpMessageNotReadableException ex) {
         return new ResponseEntity<>(
                 RsData.of(
-                        "400-1",
+                        400,
                         "요청 본문이 올바르지 않습니다."
                 ),
                 BAD_REQUEST
@@ -128,7 +123,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(
                 RsData.of(
-                        "400-1",
+                        400,
                         message
                 ),
                 BAD_REQUEST

@@ -52,7 +52,7 @@ public class MemberController {
         );
 
         return new RsData<>(
-                "201",
+                201,
                 "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
                 new MemberDto(member)
         );

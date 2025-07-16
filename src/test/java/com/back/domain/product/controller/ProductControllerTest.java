@@ -77,7 +77,7 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ProductController.class))
                 .andExpect(handler().methodName("getItems"))
-                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("success"))
                 .andExpect(jsonPath("$.data.items.length()").value( 3)) // 한페이지당 보여줄 상품 개수
                 .andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
@@ -107,7 +107,7 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ProductController.class))
                 .andExpect(handler().methodName("getItems"))
-                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("success"))
                 .andExpect(jsonPath("$.data.items.length()").value( 3)) // 한페이지당 보여줄 글 개수
                 .andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지
@@ -139,7 +139,7 @@ public class ProductControllerTest {
 
             resultActions
                     .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400-1 Bad Request
-                    .andExpect(jsonPath("$.code").value("400-1"))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
+                    .andExpect(jsonPath("$.code").value(400))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
                     .andExpect(jsonPath("$.message").exists());
         }
     }

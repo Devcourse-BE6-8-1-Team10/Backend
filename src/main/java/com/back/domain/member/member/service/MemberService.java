@@ -22,7 +22,7 @@ public class MemberService {
         memberRepository
                 .findByEmail(email)
                 .ifPresent(_member -> {
-                    throw new ServiceException("409", "이미 존재하는 이메일입니다.");
+                    throw new ServiceException(409, "이미 존재하는 이메일입니다.");
                 });
 
         Member member = new Member(email, password, name);
