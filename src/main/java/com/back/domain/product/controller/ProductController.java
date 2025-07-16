@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,8 +60,7 @@ public class ProductController {
     public RsData<ProductDto> getItem(@PathVariable long id)  {
 
         Product product = productService.getItem(id).orElseThrow(
-                ()->new ServiceException(404-1,"없는 상품입니다.")
-
+                ()->new ServiceException(404,"없는 상품입니다.")
         );
 
         return new RsData<>(
@@ -68,6 +69,24 @@ public class ProductController {
                 new ProductDto(product)
         );
     }
+
+    record CreateReqBody(@NotBlank String productName,
+                         @NotBlank @Positive int price,
+                         @NotBlank String imageUrl,
+                         @NotBlank String category,
+                         @NotBlank String description,
+                         boolean orderable) { } //boolean은 false
+
+//    @Operation(
+//            summary = "상품 생성",
+//            description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
+//    )
+//    @PostMapping
+//    @Transactional
+//    public RsData<ProductDto>  create(@RequestBody @Valid CreateReqBody reqBody) {
+//
+//        Product product = productService.create()
+//    }
 
 
 }

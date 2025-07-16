@@ -153,7 +153,7 @@ public class ProductControllerTest {
                     .andDo(print());
 
             resultActions
-                    .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400-1 Bad Request
+                    .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400 Bad Request
                     .andExpect(jsonPath("$.code").value(400))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
                     .andExpect(jsonPath("$.message").exists());
         }
