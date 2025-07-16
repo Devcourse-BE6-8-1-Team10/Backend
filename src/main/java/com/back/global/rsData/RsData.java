@@ -6,6 +6,8 @@ public record RsData<T>(String code, String message, T data) {
         return new RsData<>(code, message, data);
     }
 
+    public static <T> RsData<T> of(String code, String message) { return new RsData<>(code, message, null); }
+
     // 성공 편의 메소드
     public static <T> RsData<T> successOf(T data) {
         return of("200", "success", data);
