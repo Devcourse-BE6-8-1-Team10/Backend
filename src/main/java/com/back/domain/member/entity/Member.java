@@ -2,6 +2,7 @@ package com.back.domain.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
@@ -16,16 +17,17 @@ import java.util.UUID;
 public class Member {
     // ------------ [필드] ------------
     @Id
-    @Email
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    private long id;
 
-    @Column(length = 150)
+    @Email
+    @Column(length = 150, nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, length = 50)
     private String password;
 
-    @Setter
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String name; // 가변 닉네임
 
     @Column(nullable = false, unique = true)
@@ -53,4 +55,9 @@ public class Member {
         return isAdmin;
     }
 
+    public void updateName(String newName) {
+        if (newName == null || newName.trim().isEmpty())
+            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
+        this.name = newName;
+    }
 }
