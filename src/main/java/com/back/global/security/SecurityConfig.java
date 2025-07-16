@@ -17,7 +17,8 @@ public class SecurityConfig {
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll()
-            );
+            )
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
 
