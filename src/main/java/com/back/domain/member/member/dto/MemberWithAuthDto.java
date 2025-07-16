@@ -1,6 +1,6 @@
-package com.back.domain.member.dto;
+package com.back.domain.member.member.dto;
 
-import com.back.domain.member.entity.Member;
+import com.back.domain.member.member.entity.Member;
 import org.springframework.lang.NonNull;
 
 // admin 권한 여부를 포함한 DTO 클래스
