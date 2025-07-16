@@ -1,13 +1,9 @@
 package com.back.domain.member.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
@@ -17,7 +13,7 @@ import java.util.UUID;
 public class Member {
     // ------------ [필드] ------------
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Email
@@ -38,6 +34,13 @@ public class Member {
 
     // ------------ [생성자] ------------
     public Member(String email, String password, String name) {
+        if (email == null || email.trim().isEmpty())
+            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
+        if (password == null || password.trim().isEmpty())
+            throw new IllegalArgumentException("비밀번호는 비어있을 수 없습니다.");
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
+
         this.email = email;
         this.password = password;
         this.name = name;
