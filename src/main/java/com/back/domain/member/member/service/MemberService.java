@@ -15,6 +15,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthTokenService authTokenService;
 
+    public long count() {
+        return memberRepository.count();
+    }
+
     public Optional<Member> findByEmail(String email) {
         return memberRepository.findByEmail(email);
     }
@@ -27,6 +31,18 @@ public class MemberService {
                 });
 
         Member member = new Member(email, password, name);
+        return memberRepository.save(member);
+    }
+
+    //관리자로 가입
+    public Member joinAdmin(String email, String password, String name) {
+        memberRepository
+                .findByEmail(email)
+                .ifPresent(_member -> {
+                    throw new ServiceException(409, "이미 존재하는 이메일입니다.");
+                });
+
+        Member member = new Member(email, password, name, true);
         return memberRepository.save(member);
     }
 

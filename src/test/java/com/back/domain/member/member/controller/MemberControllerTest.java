@@ -33,7 +33,7 @@ class MemberControllerTest {
     void join() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
-                        post("/members")
+                        post("/api/members/join")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
