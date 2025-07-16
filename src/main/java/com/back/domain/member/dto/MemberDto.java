@@ -8,12 +8,6 @@ public record MemberDto(
         @NonNull String email,
         @NonNull String name
 ) {
-    public MemberDto(Long id, String email, String name) {
-        this.id = id;
-        this.email = email;
-        this.name = name;
-    }
-
     public MemberDto(Member member) {
         this(
                 member.getId(),
