@@ -9,10 +9,10 @@ import com.back.global.rsData.RsData;
  * @param msg 오류 메시지
  */
 public class ServiceException extends RuntimeException {
-    private final String code;
+    private final int code;
     private final String msg;
 
-    public ServiceException(String code, String msg) {
+    public ServiceException(int code, String msg) {
         super(code + " : " + msg);
         this.code = code;
         this.msg = msg;
