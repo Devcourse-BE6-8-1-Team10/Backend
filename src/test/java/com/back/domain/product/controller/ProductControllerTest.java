@@ -114,7 +114,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
 
 
-        Page<Product> productPage = productService.getItems(1, 5);
+        Page<Product> productPage = productService.getItems(page, pageSize);
         List<Product> products = productPage.getContent();
         checkProducts(products, resultActions);
 
