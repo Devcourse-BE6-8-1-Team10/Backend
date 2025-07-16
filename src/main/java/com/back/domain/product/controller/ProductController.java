@@ -8,6 +8,7 @@ import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,22 +69,31 @@ public class ProductController {
     }
 
     record CreateReqBody(@NotBlank String productName,
-                         @NotBlank @Positive int price,
+                         @Positive int price,
                          @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
                          boolean orderable) { } //boolean은 false
 
-//    @Operation(
-//            summary = "상품 생성",
-//            description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
-//    )
-//    @PostMapping
-//    @Transactional
-//    public RsData<ProductDto>  create(@RequestBody @Valid CreateReqBody reqBody) {
-//
-//        Product product = productService.create()
-//    }
+    @Operation(
+            summary = "상품 생성",
+            description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
+    )
+    @PostMapping("/products")
+    @Transactional
+    public RsData<ProductDto> create(@RequestBody @Valid CreateReqBody reqBody) {
+
+        Product product = productService.create(reqBody.productName(), reqBody.price(),
+                reqBody.imageUrl(), reqBody.category(), reqBody.description(), reqBody.orderable());
+
+
+        return new RsData<>(
+                201,
+                "%d번 상품이 생성되었습니다.".formatted(product.getId()),
+                new ProductDto(product)
+        );
+
+    }
 
 
 }
