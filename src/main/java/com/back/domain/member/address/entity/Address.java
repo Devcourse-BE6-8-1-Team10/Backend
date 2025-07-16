@@ -23,6 +23,11 @@ public class Address extends BaseEntity {
 
     // ------------ [생성자] ------------
     public Address(String address, Boolean isDefault, Member member) {
+        if (address == null || address.isBlank())
+            throw new IllegalArgumentException("주소는 비어있을 수 없습니다.");
+        if (member == null)
+            throw new IllegalArgumentException("회원 정보는 비어있을 수 없습니다.");
+
         this.address = address;
         this.isDefault = isDefault;
         this.member = member;
