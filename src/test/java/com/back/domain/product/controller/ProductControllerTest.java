@@ -121,4 +121,32 @@ public class ProductControllerTest {
 
     }
 
+    @Test
+    @DisplayName("상품 전체 조회 - 잘못된 페이지 파라미터(@Min/@Max 위반)")
+    void items3() throws Exception {
+        // 잘못된 page, pageSize 조합들
+        String[] invalidRequests = {
+                "/products?page=0&pageSize=5",     // page < 1
+                "/products?page=-1&pageSize=5",    // page 음수
+                "/products?page=1&pageSize=0",     // pageSize < 1
+                "/products?page=1&pageSize=101"    // pageSize > 100
+        };
+
+        for (String url : invalidRequests) {
+            ResultActions resultActions = mvc
+                    .perform(get(url))
+                    .andDo(print());
+
+            resultActions
+                    .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400-1 Bad Request
+                    .andExpect(jsonPath("$.code").value("400-1"))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
+                    .andExpect(jsonPath("$.message").exists());
+        }
+    }
+
+
+
+
+
+
 }
