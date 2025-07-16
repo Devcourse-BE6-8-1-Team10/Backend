@@ -1,11 +1,14 @@
-package com.back.domain.member.entity;
+package com.back.domain.member.member.entity;
 
+import com.back.domain.member.address.entity.Address;
 import com.back.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +31,15 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isAdmin;
+
+    @OneToMany(
+        mappedBy = "member",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<Address> addresses = new ArrayList<>();
+
 
     // ------------ [생성자] ------------
     public Member(String email, String password, String name) {

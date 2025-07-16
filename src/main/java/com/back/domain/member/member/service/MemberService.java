@@ -1,6 +1,6 @@
-package com.back.domain.member.service;
+package com.back.domain.member.member.service;
 
-import com.back.domain.member.repository.MemberRepository;
+import com.back.domain.member.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
