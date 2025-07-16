@@ -1,7 +1,6 @@
 package com.back.global.exception;
 
 import com.back.global.rsData.RsData;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 서비스 예외를 나타내는 클래스

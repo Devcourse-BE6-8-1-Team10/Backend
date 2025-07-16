@@ -32,15 +32,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<RsData<Void>> handle(ServiceException ex) {
         RsData<Void> rsData = ex.getRsData();
-        int statusCode = Integer.parseInt(rsData.code().split("-")[0]);
+        int statusCode;
+        try {
+            statusCode = Integer.parseInt(rsData.code().split("-")[0]);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            statusCode = 400;
+        }
 
-        return new ResponseEntity<>(
-                rsData,
-                ResponseEntity
-                        .status(statusCode)
-                        .build()
-                        .getStatusCode()
-        );
+        return ResponseEntity.status(statusCode).body(rsData);
     }
 
     // NoSuchElementException: 데이터가 존재하지 않을 때 발생하는 예외
@@ -62,7 +61,8 @@ public class GlobalExceptionHandler {
         String message = ex.getConstraintViolations()
                 .stream()
                 .map(violation -> {
-                    String field = violation.getPropertyPath().toString().split("\\.", 2)[1];
+                    String path = violation.getPropertyPath().toString();
+                    String field = path.contains(".") ? path.split("\\.", 2)[1] : path;
                     String[] messageTemplateBits = violation.getMessageTemplate()
                             .split("\\.");
                     String code = messageTemplateBits[messageTemplateBits.length - 2];
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 
                     return "%s-%s-%s".formatted(field, code, _message);
                 })
-                .sorted(Comparator.comparing(String::toString))
+                .sorted()
                 .collect(Collectors.joining("\n"));
 
         return new ResponseEntity<>(
