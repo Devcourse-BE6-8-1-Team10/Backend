@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/members")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 @Tag(name = "MemberController", description = "회원 관련 API 컨트롤러")
 public class MemberController {
@@ -39,7 +39,7 @@ public class MemberController {
     ) { }
 
 
-    @PostMapping
+    @PostMapping("/join")
     @Transactional
     @Operation(summary = "회원 가입")
     public RsData<MemberDto> join(
