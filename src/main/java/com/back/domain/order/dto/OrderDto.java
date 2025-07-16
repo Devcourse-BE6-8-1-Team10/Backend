@@ -18,12 +18,11 @@ public record OrderDto(
         @NonNull String state,
         @Schema(description = "주문 주소")
         @NonNull String customerAddress
-        ) {
+) {
     public OrderDto(Order order) {
         this(
                 order.getId(),
-                //order.getCustomerEmail(),
-                "email",
+                order.getCustomerEmail().getEmail(),
                 order.getCreatedDate(),
                 order.getState(),
                 order.getCustomerAddress()
