@@ -58,12 +58,12 @@ public class ProductController {
     public RsData<ProductDto> getItem(@PathVariable long id)  {
 
         Product product = productService.getItem(id).orElseThrow(
-                ()->new ServiceException("404-1","없는 상품입니다.")
+                ()->new ServiceException(404-1,"없는 상품입니다.")
 
         );
 
         return new RsData<>(
-                "200",
+                200,
                 "%d번 상품을 조회하였습니다.".formatted(id),
                 new ProductDto(product)
         );
