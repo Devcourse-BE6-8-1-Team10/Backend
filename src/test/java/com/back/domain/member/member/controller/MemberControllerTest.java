@@ -44,7 +44,7 @@ class MemberControllerTest {
                 )
                 .andDo(print());
 
-        Member member = memberService.findByName("testuser").get();
+        Member member = memberService.findByEmail("testuser@gmail.com").get();
 
         resultActions
                 .andExpect(handler().handlerType(MemberController.class))
@@ -52,9 +52,9 @@ class MemberControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.code").value("201"))
                 .andExpect(jsonPath("$.msg").value("%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName())))
+                .andExpect(jsonPath("$.data.id").value(member.getId()))
                 .andExpect(jsonPath("$.data.email").value(member.getEmail()))
-                .andExpect(jsonPath("$.data.name").value(member.getName()))
-                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
+                .andExpect(jsonPath("$.data.name").value(member.getName()));
     }
 
 }
