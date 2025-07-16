@@ -1,5 +1,6 @@
 package com.back.domain.member.entity;
 
+import com.back.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
@@ -10,12 +11,8 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Member {
+public class Member extends BaseEntity {
     // ------------ [필드] ------------
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     @Email
     @Column(length = 150, nullable = false, unique = true)
     private String email;
