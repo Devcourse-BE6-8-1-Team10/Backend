@@ -1,8 +1,10 @@
 package com.back.domain.product.controller;
 
 import com.back.domain.product.dto.PageDto;
+import com.back.domain.product.dto.ProductDto;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.service.ProductService;
+import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,5 +39,21 @@ public class ProductController {
        PageDto pageDto = new PageDto(productPage);
         return RsData.successOf(pageDto);
     }
+
+    @GetMapping("/products/{id}")
+    public RsData<ProductDto> getItem(@PathVariable long id)  {
+
+        Product product = productService.getItem(id).orElseThrow(
+                ()->new ServiceException("404-1","없는 상품입니다.")
+
+        );
+
+        return new RsData<>(
+                "200-1",
+                "%d번 상품을 조회하였습니다.".formatted(id),
+                new ProductDto(product)
+        );
+    }
+
 
 }

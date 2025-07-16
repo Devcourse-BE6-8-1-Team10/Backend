@@ -32,13 +32,28 @@ public class ProductControllerTest {
     @Autowired
     private ProductService productService;
 
-    @BeforeEach //테스트용 초기 데이터 삽입
+    @BeforeEach
+        //테스트용 초기 데이터 삽입
     void setUp() {
         if (productService.count() == 0) {
             productService.create("1", 100, "1", "1", "1", true);
             productService.create("2", 200, "2", "2", "2", true);
             productService.create("3", 300, "3", "3", "3", true);
         }
+    }
+
+    private void checkProduct(ResultActions resultActions, Product product) throws Exception {
+        resultActions
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.id").value(product.getId()))
+                .andExpect(jsonPath("$.data.productName").value(product.getProductName()))
+                .andExpect(jsonPath("$.data.price").value(product.getPrice()))
+                .andExpect(jsonPath("$.data.imageUrl").value(product.getImageUrl()))
+                .andExpect(jsonPath("$.data.category").value(product.getCategory()))
+                .andExpect(jsonPath("$.data.description").value(product.getDescription()))
+                .andExpect(jsonPath("$.data.orderable").value(product.isOrderable()))
+                .andExpect(jsonPath("$.data.createdDate").value(matchesPattern(product.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
+                .andExpect(jsonPath("$.data.modifiedDate").value(matchesPattern(product.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
     }
 
 
@@ -144,9 +159,31 @@ public class ProductControllerTest {
         }
     }
 
+    //테스트 데잍터 생성후 , auto increment떄문에 롤백되어도 id가 1로 시작안함, 그대로 유지
+    @Test
+    @DisplayName("상품 단건 조회 1 - 원하는 {id}")
+    void item1() throws Exception {
 
+        long productId = 10;
 
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/products/%d".formatted(productId))
+                )
+                .andDo(print());
 
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().methodName("getItem"))
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.message").value("%d번 상품을 조회하였습니다.".formatted(productId)));
 
+        Product product = productService.getItem(productId).get();
+
+        checkProduct(resultActions, product);
+
+    }
 
 }
+
