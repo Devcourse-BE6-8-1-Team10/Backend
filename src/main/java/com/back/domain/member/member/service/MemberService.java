@@ -1,11 +1,14 @@
 package com.back.domain.member.member.service;
 
+import com.back.domain.member.member.dto.MemberUpdateDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.repository.MemberRepository;
 import com.back.global.exception.ServiceException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Optional;
@@ -80,5 +83,16 @@ public class MemberService {
 
 
         memberRepository.delete(member);
+    }
+
+    @Transactional
+    public void modify(@Valid MemberUpdateDto reqBody, Member member) {
+
+        member.modifyInfo(
+                reqBody.email(),
+                passwordEncoder.encode(reqBody.password()),
+                reqBody.name()
+        );
+        memberRepository.save(member);
     }
 }

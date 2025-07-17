@@ -1,6 +1,7 @@
 package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.dto.MemberDto;
+import com.back.domain.member.member.dto.MemberUpdateDto;
 import com.back.domain.member.member.dto.MemberWithAuthDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
@@ -145,13 +146,33 @@ public class MemberController {
     @Transactional(readOnly = true)
     public RsData<MemberWithAuthDto> getMemberInfo() {
         Member actor = rq.getActor();
-
         Member member = memberService.findById(actor.getId())
                 .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
 
         return new RsData<>(
                 200,
                 "회원 정보가 조회됐습니다.",
+                new MemberWithAuthDto(member)
+        );
+    }
+
+
+
+
+    @PutMapping("/info")
+    @Operation(summary = "회원 정보 수정")
+    public RsData<MemberWithAuthDto> updateMemberInfo(
+            @Valid @RequestBody MemberUpdateDto reqBody
+    ) {
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+
+        memberService.modify(reqBody, member);
+
+        return new RsData<>(
+                200,
+                "회원 정보가 수정됐습니다.",
                 new MemberWithAuthDto(member)
         );
     }
