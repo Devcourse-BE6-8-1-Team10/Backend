@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -186,4 +187,44 @@ class MemberControllerTest {
                 });
     }
 
+    @Test
+    @DisplayName("회원 탈퇴")
+    @WithUserDetails("user1@gmail.com")
+    void deleteAccount() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/members/me")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("deleteAccount"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("회원 탈퇴가 완료되었습니다."));
+
+        // 회원 정보가 삭제되었는지 확인
+        assertThat(memberService.findByEmail("user1@gmail.com"))
+                .isEmpty();
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 로그인하지 않은 경우")
+    void deleteAccount_notLoggedIn() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/members/me")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("deleteAccount"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));
+    }
 }
