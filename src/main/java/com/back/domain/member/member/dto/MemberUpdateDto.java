@@ -14,6 +14,7 @@ public record MemberUpdateDto(
         String name,
 
         @NotBlank
+        @Size(min = 8, max = 20)
         String password
 ) {
 }
