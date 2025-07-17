@@ -25,6 +25,10 @@ public class MemberService {
         return memberRepository.findByEmail(email);
     }
 
+    public Optional<Member> findById(Long id) {
+        return memberRepository.findById(id);
+    }
+
     public Member join(String email, String password, String name) {
         memberRepository
                 .findByEmail(email)

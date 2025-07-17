@@ -126,8 +126,6 @@ public class MemberController {
     public RsData<Void> withdraw() {
         Member member = rq.getActor();
 
-        log.debug("탈퇴 요청한 회원: {}", member.isAdmin());
-
         memberService.withdraw(member);
 
         rq.deleteCookie("apiKey");
@@ -137,6 +135,22 @@ public class MemberController {
                 200,
                 "회원 탈퇴가 완료되었습니다.",
                 null
+        );
+    }
+
+    @GetMapping("/info")
+    @Operation(summary = "회원 정보 조회")
+    @Transactional(readOnly = true)
+    public RsData<MemberWithAuthDto> getMemberInfo() {
+        Member actor = rq.getActor();
+
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+
+        return new RsData<>(
+                200,
+                "회원 정보가 조회됐습니다.",
+                new MemberWithAuthDto(member)
         );
     }
 
