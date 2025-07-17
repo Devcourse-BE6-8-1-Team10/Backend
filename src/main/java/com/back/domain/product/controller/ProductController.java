@@ -68,6 +68,33 @@ public class ProductController {
         );
     }
 
+    record CreateReqBody(@NotBlank String productName,
+                         @Positive int price,
+                         @NotBlank String imageUrl,
+                         @NotBlank String category,
+                         @NotBlank String description,
+                         boolean orderable) { } //boolean은 false
+
+    @Operation(
+            summary = "상품 생성",
+            description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
+    )
+    @PostMapping("/products")
+    @Transactional
+    public RsData<ProductDto> create(@RequestBody @Valid CreateReqBody reqBody) {
+
+        Product product = productService.create(reqBody.productName(), reqBody.price(),
+                reqBody.imageUrl(), reqBody.category(), reqBody.description(), reqBody.orderable());
+
+
+        return new RsData<>(
+                201,
+                "%d번 상품이 생성되었습니다.".formatted(product.getId()),
+                new ProductDto(product)
+        );
+
+    }
+
 
     record CreateReqBody(@NotBlank String productName,
                          @Positive int price,
