@@ -2,6 +2,7 @@ package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.global.exception.ServiceException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ class MemberControllerTest {
     void join() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
-                        post("/members")
+                        post("/api/members/join")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -44,7 +45,7 @@ class MemberControllerTest {
                 )
                 .andDo(print());
 
-        Member member = memberService.findByEmail("testuser@gmail.com").get();
+        Member member = memberService.findByEmail("testuser@gmail.com").orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
         resultActions
                 .andExpect(handler().handlerType(MemberController.class))
