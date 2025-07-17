@@ -127,8 +127,8 @@ public class ProductController {
 
 
     @Operation(
-            summary = "글 삭제",
-            description = "일단 글 삭제"
+            summary = "상품 삭제",
+            description = "일단 상품 삭제"
     )
     @DeleteMapping("/products/{id}")
     public RsData<Void> delete(@PathVariable long id) {
