@@ -1,21 +1,29 @@
 package com.back.domain.member.member.entity;
 
 import com.back.domain.member.address.entity.Address;
-import com.back.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class Member extends BaseEntity {
+public class Member {
     // ------------ [필드] ------------
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
+
     @Email
     @Column(length = 150, nullable = false, unique = true)
     private String email;
@@ -62,6 +70,18 @@ public class Member extends BaseEntity {
         this.isAdmin = isAdmin;
     }
 
+    // new 로 생성하는 경우.
+    public Member(int id, String email, String name){
+        if (email == null || email.trim().isEmpty())
+            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
+
+        this.id = (long) id;
+        this.email = email;
+        this.name = name;
+    }
+
     // ------------ [메서드] ------------
     public boolean isAdmin() {
         return isAdmin;
@@ -72,4 +92,25 @@ public class Member extends BaseEntity {
             throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
         this.name = newName;
     }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getAuthoritiesAsStringList()
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+    }
+
+    private List<String> getAuthoritiesAsStringList() {
+        List<String> authorities = new ArrayList<>();
+
+        if (isAdmin())
+            authorities.add("ROLE_ADMIN");
+
+        return authorities;
+    }
+
+    public void modifyApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
 }
