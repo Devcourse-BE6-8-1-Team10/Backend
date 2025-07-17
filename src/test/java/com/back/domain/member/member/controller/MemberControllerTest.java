@@ -161,7 +161,7 @@ class MemberControllerTest {
     void logout() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/api/v1/members/logout")
+                        delete("/api/members/logout")
                 )
                 .andDo(print());
 
@@ -170,7 +170,7 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("logout"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.msg").value("로그아웃 됐습니다."))
+                .andExpect(jsonPath("$.message").value("로그아웃 됐습니다."))
                 .andExpect(result -> {
                     Cookie apiKeyCookie = result.getResponse().getCookie("apiKey");
                     assertThat(apiKeyCookie.getValue()).isEmpty();

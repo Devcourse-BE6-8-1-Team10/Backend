@@ -15,10 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
@@ -108,6 +105,17 @@ public class MemberController {
         );
     }
 
+    @DeleteMapping("/logout")
+    @Operation(summary = "회원 로그아웃")
+    public RsData<Void> logout(){
+        rq.deleteCookie("apiKey");
+
+        return new RsData<>(
+                200,
+                "로그아웃 됐습니다.",
+                null
+        );
+    }
 
 
 
