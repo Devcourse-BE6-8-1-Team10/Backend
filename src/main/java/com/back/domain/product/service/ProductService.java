@@ -69,4 +69,7 @@ public class ProductService {
         product.setDescription(description);
         product.setOrderable(orderable);
     }
+    public void delete(Product product) {
+        productRepository.delete(product);
+    }
 }

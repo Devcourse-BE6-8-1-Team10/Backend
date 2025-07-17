@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -179,7 +180,7 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ProductController.class))
                 .andExpect(handler().methodName("getItem"))
-                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("%d번 상품을 조회하였습니다.".formatted(productId)));
 
         Product product = productService.getItem(productId).get();
@@ -322,5 +323,45 @@ public class ProductControllerTest {
 
     }
 
-}
+    private ResultActions deleteRequest(long productId) throws Exception {
+        return mvc
+                .perform(
+                        delete("/products/%d".formatted(productId))
+                )
+                .andDo(print());
+    }
 
+    @Test
+    @DisplayName("상품 삭제")
+    void delete1() throws Exception {
+
+        long productId = 25;
+
+        ResultActions resultActions = deleteRequest(productId);
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("%d번 상품이 삭제되었습니다.".formatted(productId)));
+
+    }
+
+    @Test
+    @DisplayName("상품 삭제 - (존재하지 않는)")
+    void delete2() throws Exception {
+        long nonExistentProductId = 99999;
+
+        ResultActions resultActions = deleteRequest(nonExistentProductId);
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
+    }
+
+
+
+
+}
