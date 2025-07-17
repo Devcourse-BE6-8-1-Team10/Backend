@@ -223,8 +223,8 @@ class AddressControllerTest {
         resultActions
                 .andExpect(handler().handlerType(AddressController.class))
                 .andExpect(handler().methodName("deleteAddress"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.code").value(204))
                 .andExpect(jsonPath("$.message").value("주소가 삭제됐습니다."));
     }
 

@@ -84,6 +84,21 @@ public class AddressController {
         );
     }
 
+    @DeleteMapping("/{addressId}")
+    @Operation(summary = "주소 삭제")
+    public RsData<Void> deleteAddress(
+            @PathVariable Long addressId
+    ) {
+        Member member = rq.getActor();
+        addressService.deleteAddress(member, addressId);
+
+        return new RsData<>(
+                204,
+                "주소가 삭제됐습니다.",
+                null
+        );
+    }
+
 
 
 }

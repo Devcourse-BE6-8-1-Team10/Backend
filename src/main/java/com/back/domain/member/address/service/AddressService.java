@@ -31,4 +31,15 @@ public class AddressService {
     public List<Address> getAddressList(Member member) {
         return addressRepository.findAllByMember(member);
     }
+
+    @Transactional
+    public void deleteAddress(Member member, Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ServiceException(404, "주소를 찾을 수 없습니다."));
+
+        if (!address.getMember().equals(member))
+            throw new ServiceException(403, "다른 유저의 주소는 삭제할 수 없습니다.");
+
+        addressRepository.delete(address);
+    }
 }
