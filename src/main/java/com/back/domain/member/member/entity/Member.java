@@ -12,6 +12,7 @@ import java.util.*;
 @Entity
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Member {
     // ------------ [필드] ------------
 

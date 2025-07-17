@@ -47,7 +47,7 @@ class AddressControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "address": "서울특별시"
+                                            "content": "서울특별시"
                                         }
                                         """.stripIndent())
                 )
@@ -67,7 +67,7 @@ class AddressControllerTest {
                 .andExpect(jsonPath("$.message").value("주소가 등록됐습니다."))
                 .andExpect(jsonPath("$.data.id").value(address.getId()))
                 .andExpect(jsonPath("$.data.content").value(address.getContent()))
-                .andExpect(jsonPath("$.data.member").value(member));
+                .andExpect(jsonPath("$.data.member.id").value(member.getId()));
 
         assertThat(address.getMember()).isEqualTo(member);
     }
@@ -87,7 +87,7 @@ class AddressControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "address": "서울특별시"
+                                            "content": "서울특별시"
                                         }
                                         """.stripIndent())
                 )
@@ -112,7 +112,7 @@ class AddressControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "address": ""
+                                            "content": ""
                                         }
                                         """.stripIndent())
                 )
@@ -123,6 +123,6 @@ class AddressControllerTest {
                 .andExpect(handler().methodName("submitAddress"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("주소는 비어있을 수 없습니다."));
+                .andExpect(jsonPath("$.message").value("content-NotBlank-must not be blank"));
     }
 }
