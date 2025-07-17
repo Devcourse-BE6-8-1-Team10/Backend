@@ -130,7 +130,7 @@ class AddressControllerTest {
     @Test
     @DisplayName("전체 주소 조회")
     @WithUserDetails("user1@gmail.com")
-    void getAddresses() throws Exception {
+    void getAddressList() throws Exception {
         // Given: 유저가 존재하고, 여러 주소가 등록되어 있음
         Member member = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
@@ -150,7 +150,7 @@ class AddressControllerTest {
         // Then: 주소 목록이 올바르게 반환되고, 상태 코드가 200이어야 함
         resultActions
                 .andExpect(handler().handlerType(AddressController.class))
-                .andExpect(handler().methodName("getAddresses"))
+                .andExpect(handler().methodName("getAddressList"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("주소 목록을 조회했습니다."))
@@ -163,7 +163,7 @@ class AddressControllerTest {
     @Test
     @DisplayName("전체 주소 조회 - 주소 목록이 비어있음")
     @WithUserDetails("user1@gmail.com")
-    void getAddresses_emptyAddress() throws Exception {
+    void getAddressList_emptyList() throws Exception {
         // Given: 유저가 존재하고, 여러 주소가 등록되어 있음
         Member member = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
@@ -179,7 +179,7 @@ class AddressControllerTest {
         // Then: 빈 주소 목록이 올바르게 반환되고, 상태 코드가 200이어야 함
         resultActions
                 .andExpect(handler().handlerType(AddressController.class))
-                .andExpect(handler().methodName("getAddresses"))
+                .andExpect(handler().methodName("getAddressList"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("주소 목록을 조회했습니다."))
@@ -188,7 +188,7 @@ class AddressControllerTest {
 
     @Test
     @DisplayName("전체 주소 조회 - 인증된 유저가 없음")
-    void getAddresses_withoutAuth() throws Exception {
+    void getAddressList_withoutAuth() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/addresses")
@@ -197,8 +197,6 @@ class AddressControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(AddressController.class))
-                .andExpect(handler().methodName("getAddresses"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));

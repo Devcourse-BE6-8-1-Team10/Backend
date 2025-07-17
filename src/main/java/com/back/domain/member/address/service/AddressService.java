@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AddressService {
@@ -23,5 +25,10 @@ public class AddressService {
         Address address = new Address(content, false, member);
 
         return addressRepository.save(address);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Address> getAddressList(Member member) {
+        return addressRepository.findAllByMember(member);
     }
 }

@@ -11,10 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/addresses")
@@ -53,6 +52,35 @@ public class AddressController {
                         address.getContent(),
                         new MemberDto(address.getMember())
                 )
+        );
+    }
+
+    record AddressListResBody(
+            Long id,
+            String content,
+            boolean isDefault
+    ) {
+    }
+
+    @GetMapping
+    @Operation(summary = "주소 목록 조회")
+    public RsData<AddressListResBody[]> getAddressList() {
+        Member member = rq.getActor();
+
+        List<Address> addresses = addressService.getAddressList(member);
+
+        AddressListResBody[] resBodies = addresses.stream()
+                .map(address -> new AddressListResBody(
+                        address.getId(),
+                        address.getContent(),
+                        address.getIsDefault()
+                ))
+                .toArray(AddressListResBody[]::new);
+
+        return new RsData<>(
+                200,
+                "주소 목록을 조회했습니다.",
+                resBodies
         );
     }
 
