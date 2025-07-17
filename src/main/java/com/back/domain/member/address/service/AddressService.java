@@ -1,4 +1,4 @@
-package com.back.domain.member.address.Service;
+package com.back.domain.member.address.service;
 
 import com.back.domain.member.address.entity.Address;
 import com.back.domain.member.address.repository.AddressRepository;
@@ -6,12 +6,14 @@ import com.back.domain.member.member.entity.Member;
 import com.back.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AddressService {
     private final AddressRepository addressRepository;
 
+    @Transactional
     public Address submitAddress(Member member, String content) {
         addressRepository.findByMemberAndContent(member, content)
                 .ifPresent(existingAddress -> {

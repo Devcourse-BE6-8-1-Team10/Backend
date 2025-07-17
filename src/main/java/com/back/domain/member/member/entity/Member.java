@@ -44,6 +44,7 @@ public class Member {
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
+    @OrderBy("id ASC") // 주소는 등록된 순서대로 정렬
     private List<Address> addresses = new ArrayList<>();
 
 

@@ -1,7 +1,7 @@
 package com.back.domain.member.address.controller;
 
-import com.back.domain.member.address.Service.AddressService;
 import com.back.domain.member.address.entity.Address;
+import com.back.domain.member.address.service.AddressService;
 import com.back.domain.member.member.dto.MemberDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.global.rq.Rq;
@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +38,6 @@ public class AddressController {
     }
 
     @PostMapping
-    @Transactional
     @Operation(summary = "주소 등록")
     public RsData<AddressSubmitResBody>  submitAddress(
             @Valid @RequestBody AddressSubmitReqBody reqBody

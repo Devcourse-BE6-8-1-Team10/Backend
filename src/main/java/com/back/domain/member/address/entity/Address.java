@@ -2,12 +2,12 @@ package com.back.domain.member.address.entity;
 
 import com.back.domain.member.member.entity.Member;
 import jakarta.persistence.*;
-import jakarta.validation.ConstraintViolationException;
 import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Address {
     // ------------ [필드] ------------
     @Id
@@ -29,9 +29,9 @@ public class Address {
     // ------------ [생성자] ------------
     public Address(String content, Boolean isDefault, Member member) {
         if (content == null || content.isBlank())
-            throw new ConstraintViolationException("주소 내용은 비어있을 수 없습니다.", null);
+            throw new IllegalArgumentException("주소 내용은 비어있을 수 없습니다.");
         if (member == null)
-            throw new ConstraintViolationException("회원 정보는 비어있을 수 없습니다.", null);
+            throw new IllegalArgumentException("회원 정보는 비어있을 수 없습니다.");
 
         this.content = content;
         this.isDefault = isDefault;

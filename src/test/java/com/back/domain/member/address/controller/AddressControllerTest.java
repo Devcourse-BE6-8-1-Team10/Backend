@@ -1,6 +1,6 @@
 package com.back.domain.member.address.controller;
 
-import com.back.domain.member.address.Service.AddressService;
+import com.back.domain.member.address.service.AddressService;
 import com.back.domain.member.address.entity.Address;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
