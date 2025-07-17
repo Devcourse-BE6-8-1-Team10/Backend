@@ -95,6 +95,7 @@ public class ProductController {
 
     }
 
+
     record ModifyReqBody(@NotBlank String productName,
                          @Positive int price,
                          @NotBlank String imageUrl,
@@ -122,6 +123,29 @@ public class ProductController {
                 "%d번 상품이 수정되었습니다.".formatted(id),
                 new ProductDto(product)
         );
+    }
+
+
+    @Operation(
+            summary = "상품 삭제",
+            description = "일단 상품 삭제"
+    )
+    @DeleteMapping("/products/{id}")
+    public RsData<Void> delete(@PathVariable long id) {
+
+        Product product = productService.getItem(id).orElseThrow(
+                () -> new ServiceException(404,"존재하지 않는 상품입니다.")
+        );
+
+        productService.delete(product);
+
+        return new RsData<>(
+                200,
+                "%d번 상품이 삭제되었습니다.".formatted(id),
+                null
+        );
+
+
     }
 
 
