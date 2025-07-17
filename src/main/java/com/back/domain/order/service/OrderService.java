@@ -38,10 +38,8 @@ public class OrderService {
             if (!product.isOrderable())
                 throw new ServiceException(400, "주문 불가능한 상품입니다.");
 
-            int count = reqBody.count();
-            int price = product.getPrice();
-
-            new OrderItem(order, product, count, price);
+            OrderItem orderItem = new OrderItem(order, product, reqBody.count(), product.getPrice());
+            order.addOrderItem(orderItem);
         }
 
         return orderRepository.save(order);
@@ -54,5 +52,13 @@ public class OrderService {
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
+    }
+
+    @Transactional
+    public void delete(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 주문입니다."));
+
+        orderRepository.delete(order);
     }
 }

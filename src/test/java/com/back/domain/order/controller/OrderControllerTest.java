@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,8 +42,8 @@ public class OrderControllerTest {
     @Transactional
     void setUp() {
         // 회원 생성
-        if (memberService.findByEmail("test1@email.com").isEmpty()) {
-            memberService.join("test1@email.com", "1234", "홍길순");
+        if (memberService.findByEmail("user1@gmail.com").isEmpty()) {
+            memberService.join("user1@gmail.com", "1234", "유저1");
         }
 
         // 중복 방지 UUID 포함
@@ -56,12 +55,12 @@ public class OrderControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test1@email.com", roles = {"USER"})
+    @WithMockUser("user1@gmail.com")
     @Order(1)
     @DisplayName("1. 주문 생성 성공")
     void t1_createOrder() throws Exception {
         Map<String, Object> request = Map.of(
-                "customerEmail", "test1@email.com",
+                "customerEmail", "user1@gmail.com",
                 "customerAddress", "서울 강남구",
                 "orderItems", List.of(
                         Map.of("productId", p1.getId(), "count", 2),
@@ -74,7 +73,7 @@ public class OrderControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.id").exists())
-                .andExpect(jsonPath("$.data.customerEmail").value("test1@email.com"))
+                .andExpect(jsonPath("$.data.customerEmail").value("user1@gmail.com"))
                 .andExpect(jsonPath("$.data.state").value("ORDERED"))
                 .andReturn();
 
@@ -83,7 +82,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test1@email.com", roles = {"USER"})
+    @WithMockUser("user1@gmail.com")
     @Order(2)
     @DisplayName("2. 주문 목록 조회")
     void t2_getOrders() throws Exception {
@@ -93,11 +92,11 @@ public class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data[0].id").value(savedOrderId))
-                .andExpect(jsonPath("$.data[0].customerEmail").value("test1@email.com"));
+                .andExpect(jsonPath("$.data[0].customerEmail").value("user1@gmail.com"));
     }
 
     @Test
-    @WithMockUser(username = "test1@email.com", roles = {"USER"})
+    @WithMockUser("user1@gmail.com")
     @Order(3)
     @DisplayName("3. 주문 상세 조회")
     void t3_getOrderDetail() throws Exception {
@@ -106,12 +105,12 @@ public class OrderControllerTest {
         mvc.perform(get("/api/orders/{orderId}/detail", savedOrderId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(savedOrderId))
-                .andExpect(jsonPath("$.data.customerEmail").value("test1@email.com"))
+                .andExpect(jsonPath("$.data.customerEmail").value("user1@gmail.com"))
                 .andExpect(jsonPath("$.data.orderItems").isArray());
     }
 
     @Test
-    @WithMockUser(username = "test1@email.com", roles = {"USER"})
+    @WithMockUser("user1@gmail.com")
     @Order(4)
     @DisplayName("4. 주문 생성 실패 - 없는 회원")
     void t4_createOrder_fail_no_member() throws Exception {
@@ -131,7 +130,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test1@email.com", roles = {"USER"})
+    @WithMockUser("user1@gmail.com")
     @Order(5)
     @DisplayName("5. 주문 생성 실패 - 없는 상품")
     void t5_createOrder_fail_no_product() throws Exception {
@@ -152,5 +151,47 @@ public class OrderControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
+    }
+
+    @Test
+    @WithMockUser("user1@gmail.com")
+    @Order(6)
+    @DisplayName("6. 주문 취소")
+    void t6_deleteOrderTest() throws Exception {
+        Assertions.assertNotNull(savedOrderId, "t1_createOrder에서 주문이 생성되지 않았습니다.");
+
+        mvc.perform(delete("/api/orders/{orderId}", savedOrderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value(savedOrderId + "번 주문이 취소되었습니다."))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser("user1@gmail.com")
+    @Order(7)
+    @DisplayName("7. 주문 취소 후 상세 조회 시 404 확인")
+    void t7_deletedOrderShouldNotBeFound() throws Exception {
+        Assertions.assertNotNull(savedOrderId, "삭제된 주문 ID가 null입니다.");
+
+        mvc.perform(get("/api/orders/{orderId}/detail", savedOrderId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("해당 주문이 존재하지 않습니다."));
+    }
+
+    @Test
+    @WithMockUser("user1@gmail.com")
+    @Order(8)
+    @DisplayName("8. 주문 삭제 실패 - 존재하지 않는 주문")
+    void t8_deleteOrder_fail_not_found() throws Exception {
+        Long nonExistentOrderId = 999999L;
+
+        mvc.perform(delete("/api/orders/{orderId}", nonExistentOrderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 주문입니다."))
+                .andExpect(jsonPath("$.data").doesNotExist());
     }
 }

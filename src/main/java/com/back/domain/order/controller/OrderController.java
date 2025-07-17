@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -76,5 +77,18 @@ public class OrderController {
                 200,
                 "주문 상세 조회에 성공했습니다.",
                 new OrderDtoWithSpecific(order));
+    }
+
+    //주문 취소
+    @DeleteMapping("/{orderId}")
+    @Transactional
+    @Operation(summary = "주문 취소")
+    public RsData<Void> deleteOrder(@PathVariable Long orderId) {
+        orderService.delete(orderId);
+        return new RsData<>(
+                200,
+                "%d번 주문이 취소되었습니다.".formatted(orderId),
+                null
+        );
     }
 }
