@@ -1,18 +1,23 @@
 package com.back.domain.member.address.entity;
 
 import com.back.domain.member.member.entity.Member;
-import com.back.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class Address extends BaseEntity {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Address {
     // ------------ [필드] ------------
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
+
     @Column(nullable=false)
-    private String address;
+    private String content;
 
     @Column(nullable=false)
     private Boolean isDefault;
@@ -22,19 +27,19 @@ public class Address extends BaseEntity {
     private Member member;
 
     // ------------ [생성자] ------------
-    public Address(String address, Boolean isDefault, Member member) {
-        if (address == null || address.isBlank())
-            throw new IllegalArgumentException("주소는 비어있을 수 없습니다.");
+    public Address(String content, Boolean isDefault, Member member) {
+        if (content == null || content.isBlank())
+            throw new IllegalArgumentException("주소 내용은 비어있을 수 없습니다.");
         if (member == null)
             throw new IllegalArgumentException("회원 정보는 비어있을 수 없습니다.");
 
-        this.address = address;
+        this.content = content;
         this.isDefault = isDefault;
         this.member = member;
     }
 
-    public Address(String address, Member member){
-        this(address, false, member);
+    public Address(String content, Member member){
+        this(content, false, member);
     }
 
     // ------------ [메서드] ------------
