@@ -68,13 +68,13 @@ public class ProductController {
         );
     }
 
+
     record CreateReqBody(@NotBlank String productName,
                          @Positive int price,
                          @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
-                         boolean orderable) { } //boolean은 false
-
+                         boolean orderable) { }
     @Operation(
             summary = "상품 생성",
             description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
@@ -93,6 +93,35 @@ public class ProductController {
                 new ProductDto(product)
         );
 
+    }
+
+    record ModifyReqBody(@NotBlank String productName,
+                         @Positive int price,
+                         @NotBlank String imageUrl,
+                         @NotBlank String category,
+                         @NotBlank String description,
+                         boolean orderable) { } //boolean은 false
+
+    @Operation(
+            summary = "상품 수정",
+            description = "일단 수정"
+    )
+    @PutMapping("/products/{id}")
+    @Transactional
+    public  RsData<ProductDto> modify(@PathVariable long id, @RequestBody @Valid ModifyReqBody reqBody) {
+
+        Product product = productService.getItem(id).orElseThrow(
+                () -> new ServiceException(404,"존재하지 않는 상품입니다")
+        );
+
+        productService.modify(product, reqBody.productName(), reqBody.price(), reqBody.imageUrl(),
+                reqBody.category(), reqBody.description(), reqBody.orderable());
+
+        return new RsData<>(
+                200,
+                "%d번 상품이 수정되었습니다.".formatted(id),
+                new ProductDto(product)
+        );
     }
 
 
