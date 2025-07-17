@@ -53,4 +53,8 @@ public class ProductService {
     public Optional<Product> getItem(long id) {
         return productRepository.findById(id);
     }
+
+    public Optional<Product> getLatestItem() {
+        return productRepository.findTopByOrderByIdDesc(); //상품 id 기준으로 제일 최근 생성된거
+    }
 }
