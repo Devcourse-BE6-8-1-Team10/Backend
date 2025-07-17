@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -81,7 +80,6 @@ public class OrderController {
 
     //주문 취소
     @DeleteMapping("/{orderId}")
-    @Transactional
     @Operation(summary = "주문 취소")
     public RsData<Void> deleteOrder(@PathVariable Long orderId) {
         orderService.delete(orderId);
