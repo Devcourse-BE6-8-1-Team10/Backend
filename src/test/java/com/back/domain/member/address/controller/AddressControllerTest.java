@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -202,5 +201,82 @@ class AddressControllerTest {
                 .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));
     }
 
+    @Test
+    @DisplayName("주소 삭제")
+    @WithUserDetails("user1@gmail.com")
+    void deleteAddress() throws Exception {
+        // Given: 유저가 존재하고, 주소가 등록되어 있음
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
 
+        Address address = addressService.submitAddress(member, "서울특별시");
+
+        // When: 주소 삭제 API를 호출
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/addresses/" + address.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // Then: 주소가 성공적으로 삭제되고, 상태 코드가 200이어야 함
+        resultActions
+                .andExpect(handler().handlerType(AddressController.class))
+                .andExpect(handler().methodName("deleteAddress"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주소가 삭제됐습니다."));
+    }
+
+    @Test
+    @DisplayName("주소 삭제 - 다른 유저의 주소")
+    @WithUserDetails("user1@gmail.com")
+    void deleteAddress_otherUser() throws Exception {
+        // Given: 유저가 존재하고, 다른 유저의 주소가 등록되어 있음
+        Member otherMember = memberService.findByEmail("user2@gmail.com")
+                .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
+        Address address = addressService.submitAddress(otherMember, "서울특별시");
+
+        // When: 다른 유저의 주소 삭제 API를 호출
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/addresses/" + address.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // Then: 상태 코드가 403이어야 함
+        resultActions
+                .andExpect(handler().handlerType(AddressController.class))
+                .andExpect(handler().methodName("deleteAddress"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.message").value("다른 유저의 주소는 삭제할 수 없습니다."));
+    }
+
+    // 없는 거 삭제
+    @Test
+    @DisplayName("주소 삭제 - 존재하지 않는 주소")
+    @WithUserDetails("user1@gmail.com")
+    void deleteAddress_notFound() throws Exception {
+        // Given: 유저가 존재하고, 주소가 등록되어 있지 않음
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
+
+        // When: 존재하지 않는 주소 삭제 API를 호출
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/addresses/9999") // 존재하지 않는 주소 ID
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // Then: 상태 코드가 404이어야 함
+        resultActions
+                .andExpect(handler().handlerType(AddressController.class))
+                .andExpect(handler().methodName("deleteAddress"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("주소를 찾을 수 없습니다."));
+    }
 }
