@@ -1,16 +1,20 @@
 package com.back.domain.member.address.entity;
 
 import com.back.domain.member.member.entity.Member;
-import com.back.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class Address extends BaseEntity {
+public class Address {
     // ------------ [필드] ------------
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
+    
     @Column(nullable=false)
     private String address;
 
