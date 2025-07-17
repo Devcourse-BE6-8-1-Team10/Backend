@@ -55,7 +55,7 @@ public class ProductController {
     @PostMapping("/products/upload")
     @Transactional
     public RsData<ProductDto> createWithImage(
-            @RequestPart("data") GCSReqBody reqBody,
+            @RequestPart("data") @Valid GCSReqBody reqBody,
             @RequestPart("file") MultipartFile file
     ) throws IOException {
 
@@ -153,6 +153,7 @@ public class ProductController {
             description = "일단 상품 삭제"
     )
     @DeleteMapping("/products/{id}")
+    @Transactional
     public RsData<Void> delete(@PathVariable long id) {
 
         Product product = productService.getItem(id).orElseThrow(
