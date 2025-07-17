@@ -81,6 +81,18 @@ public class Member {
         this.name = name;
     }
 
+    public Member(Long id, String email, String name, boolean isAdmin) {
+        if (email == null || email.trim().isEmpty())
+            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
+
+        this.id = (long) id;
+        this.email = email;
+        this.name = name;
+        this.isAdmin = isAdmin;
+    }
+
     // ------------ [메서드] ------------
     public boolean isAdmin() {
         return isAdmin;

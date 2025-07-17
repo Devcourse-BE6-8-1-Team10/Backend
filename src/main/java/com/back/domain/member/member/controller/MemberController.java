@@ -14,12 +14,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "MemberController", description = "회원 관리 엔드포인트")
 public class MemberController {
     private final MemberService memberService;
@@ -114,6 +116,26 @@ public class MemberController {
         return new RsData<>(
                 200,
                 "로그아웃 됐습니다.",
+                null
+        );
+    }
+
+    @DeleteMapping("/withdraw")
+    @Operation(summary = "회원 탈퇴")
+    @Transactional
+    public RsData<Void> withdraw() {
+        Member member = rq.getActor();
+
+        log.debug("탈퇴 요청한 회원: {}", member.isAdmin());
+
+        memberService.withdraw(member);
+
+        rq.deleteCookie("apiKey");
+        rq.deleteCookie("accessToken");
+
+        return new RsData<>(
+                200,
+                "회원 탈퇴가 완료되었습니다.",
                 null
         );
     }

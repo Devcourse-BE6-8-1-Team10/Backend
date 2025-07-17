@@ -24,7 +24,7 @@ public class DevInitData {
     private final MemberService memberService;
 
     @Bean
-    ApplicationRunner baseInitDataApplicationRunner() {
+    ApplicationRunner devInitDataApplicationRunner() {
         return args -> {
             self.work1();
         };
