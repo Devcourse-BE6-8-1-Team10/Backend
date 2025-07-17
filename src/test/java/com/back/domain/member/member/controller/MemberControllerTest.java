@@ -58,4 +58,34 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.data.name").value(member.getName()));
     }
 
+    @Test
+    @DisplayName("로그인")
+    void login() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/members/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "testuser@gmail.com",
+                                            "password": "testpassword",
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        Member member = memberService.findByEmail("testuser@gmail.com").orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value(201))
+                .andExpect(jsonPath("$.message").value("%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName())))
+                .andExpect(jsonPath("$.data.id").value(member.getId()))
+                .andExpect(jsonPath("$.data.email").value(member.getEmail()))
+                .andExpect(jsonPath("$.data.name").value(member.getName()));
+
+    }
+
 }
