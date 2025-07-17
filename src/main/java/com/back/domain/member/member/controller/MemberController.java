@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
-@Tag(name = "MemberController", description = "회원 관련 API 컨트롤러")
+@Tag(name = "MemberController", description = "회원 관리 엔드포인트")
 public class MemberController {
     private final MemberService memberService;
     private final Rq rq;
@@ -76,7 +76,7 @@ public class MemberController {
 
 
     @PostMapping("/login")
-    @Transactional
+    @Transactional(readOnly = true)
     @Operation(summary = "회원 로그인")
     public RsData<MemberLoginResBody> login(
             @Valid @RequestBody MemberLoginReqBody reqBody

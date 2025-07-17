@@ -7,14 +7,12 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Member {
     // ------------ [필드] ------------
 
@@ -46,6 +44,7 @@ public class Member {
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
+    @OrderBy("id ASC") // 주소는 등록된 순서대로 정렬
     private List<Address> addresses = new ArrayList<>();
 
 
@@ -111,6 +110,13 @@ public class Member {
 
     public void modifyApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public Optional<Address> getLastAddress() {
+        if (addresses.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(addresses.get(addresses.size() - 1));
     }
 
 }

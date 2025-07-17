@@ -8,7 +8,7 @@ public record AddressDto(
         @NonNull Boolean isDefault
 ) {
     public AddressDto(Address address) {
-        this(address.getAddress(), address.getIsDefault());
+        this(address.getContent(), address.getIsDefault());
     }
 
 }
