@@ -11,16 +11,20 @@ public class SecurityUser extends User {
     private final Long id;
     @Getter
     private final String email;
+    @Getter
+    private final boolean isAdmin;
 
     public SecurityUser(
             Long id,
             String email,
             String name,
             String password,
+            boolean isAdmin,
             Collection<? extends GrantedAuthority> authorities
     ) {
         super(name, password, authorities);
         this.id = id;
         this.email = email;
+        this.isAdmin = isAdmin;
     }
 }
