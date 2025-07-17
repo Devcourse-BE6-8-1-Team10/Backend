@@ -64,10 +64,10 @@ class AddressControllerTest {
                 .andExpect(handler().methodName("submitAddress"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.code").value(201))
-                .andExpect(jsonPath("$.message").value("주소가 등록되었습니다."))
+                .andExpect(jsonPath("$.message").value("주소가 등록됐습니다."))
                 .andExpect(jsonPath("$.data.id").value(address.getId()))
-                .andExpect(jsonPath("$.data.address").value(address.getContent()))
-                .andExpect(jsonPath("$.data.memberId").value(member.getId()));
+                .andExpect(jsonPath("$.data.content").value(address.getContent()))
+                .andExpect(jsonPath("$.data.member").value(member));
 
         assertThat(address.getMember()).isEqualTo(member);
     }
