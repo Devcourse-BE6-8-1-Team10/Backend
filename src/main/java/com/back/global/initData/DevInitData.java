@@ -20,11 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class DevInitData {
     @Autowired
     @Lazy
-    private DevInitData self;
+    private TestInitData self;
     private final MemberService memberService;
 
     @Bean
-    ApplicationRunner baseInitDataApplicationRunner() {
+    ApplicationRunner devInitDataApplicationRunner() {
         return args -> {
             self.work1();
         };

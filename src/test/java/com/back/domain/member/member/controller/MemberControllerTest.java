@@ -190,17 +190,17 @@ class MemberControllerTest {
     @Test
     @DisplayName("회원 탈퇴")
     @WithUserDetails("user1@gmail.com")
-    void deleteAccount() throws Exception {
+    void withdraw() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/api/members/me")
+                        delete("/api/members/withdraw")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
         resultActions
                 .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("deleteAccount"))
+                .andExpect(handler().methodName("withdraw"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("회원 탈퇴가 완료되었습니다."));
@@ -211,8 +211,28 @@ class MemberControllerTest {
     }
 
     @Test
+    @DisplayName("회원 탈퇴 - 어드민 계정으로 시도")
+    @WithUserDetails("system@gmail.com")
+    void withdraw_admin() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/members/withdraw")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("withdraw"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.message").value("관리자는 탈퇴할 수 없습니다."));
+
+    }
+
+    @Test
     @DisplayName("회원 탈퇴 - 로그인하지 않은 경우")
-    void deleteAccount_notLoggedIn() throws Exception {
+    void withdraw_notLoggedIn() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/me")
@@ -221,8 +241,6 @@ class MemberControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("deleteAccount"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));

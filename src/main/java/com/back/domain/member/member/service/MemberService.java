@@ -70,4 +70,11 @@ public class MemberService {
 
     }
 
+    public void withdraw(Member member) {
+        if (member.isAdmin())
+            throw new ServiceException(403, "관리자는 탈퇴할 수 없습니다.");
+
+
+        memberRepository.delete(member);
+    }
 }
