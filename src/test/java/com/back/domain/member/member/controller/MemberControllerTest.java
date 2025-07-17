@@ -107,4 +107,51 @@ class MemberControllerTest {
         );
     }
 
+    @Test
+    @DisplayName("로그인 - 잘못된 비밀번호")
+    void login_wrongPassword() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/members/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "system@gmail.com",
+                                            "password": "wrong_password",
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("login"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.message").value("잘못된 비밀번호 입니다"));
+    }
+
+    @Test
+    @DisplayName("로그인 - 잘못된 이메일")
+    void login_wrongEmail() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/members/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "wrong_system@gmail.com",
+                                            "password": "wrong_password",
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("login"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 이메일 입니다"));
+    }
 }
