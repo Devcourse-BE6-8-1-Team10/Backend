@@ -9,15 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -153,7 +156,7 @@ public class ProductControllerTest {
                     .andDo(print());
 
             resultActions
-                    .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400-1 Bad Request
+                    .andExpect(status().isBadRequest()) // 유효성 검사 실패 → 400 Bad Request
                     .andExpect(jsonPath("$.code").value(400))//    // ConstraintViolationException: 제약 조건(@NotNull, @Size 등)을 어겼을 때 발생하는 예외
                     .andExpect(jsonPath("$.message").exists());
         }
@@ -180,6 +183,57 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.message").value("%d번 상품을 조회하였습니다.".formatted(productId)));
 
         Product product = productService.getItem(productId).get();
+
+        checkProduct(resultActions, product);
+
+    }
+
+    private ResultActions writeRequest(String productName, int price, String imageUrl,
+                                       String category,String description, boolean orderable ) throws Exception {
+        return mvc
+                .perform(
+                        post("/products")
+                                .content("""
+                                        {
+                                            "productName": "%s",
+                                            "price": %d,
+                                            "imageUrl": "%s",
+                                            "category": "%s",
+                                            "description": "%s",
+                                            "orderable" : true
+                                        }
+                                        """
+                                        .formatted(productName,price,imageUrl,category,description,orderable)
+                                        .stripIndent())
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("상품 생성")
+    void create1() throws Exception {
+
+        String productName = "새로운 상품이름";
+        int price = 10000;
+        String imageUrl = "123";
+        String category = "아이스";
+        String description = "아이스 아메리카노";
+        boolean orderable = true;
+
+        ResultActions resultActions = writeRequest(productName, price, imageUrl, category, description, orderable);
+
+        //상품의 제일 마지막 찾는 함수
+        Product product = productService.getLatestItem().get();
+
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().methodName("create"))
+                .andExpect(jsonPath("$.code").value(201))
+                .andExpect(jsonPath("$.message").value("%d번 상품이 생성되었습니다.".formatted(product.getId())));
 
         checkProduct(resultActions, product);
 
