@@ -45,7 +45,7 @@ class MemberControllerTest {
                 )
                 .andDo(print());
 
-        Member member = memberService.findByEmail("testuser@gmail.com").orElseThrow(() -> new ServiceException(403, "회원이 존재하지 않습니다."));
+        Member member = memberService.findByEmail("testuser@gmail.com").orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
         resultActions
                 .andExpect(handler().handlerType(MemberController.class))

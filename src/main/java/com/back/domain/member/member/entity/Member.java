@@ -109,4 +109,8 @@ public class Member {
         return authorities;
     }
 
+    public void modifyApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
 }

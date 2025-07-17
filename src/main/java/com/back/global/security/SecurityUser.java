@@ -8,12 +8,12 @@ import java.util.Collection;
 
 public class SecurityUser extends User {
     @Getter
-    private final int id;
+    private final Long id;
     @Getter
     private final String email;
 
     public SecurityUser(
-            int id,
+            Long id,
             String email,
             String name,
             String password,
