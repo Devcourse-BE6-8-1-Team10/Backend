@@ -142,7 +142,6 @@ class AddressControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/addresses")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -171,7 +170,6 @@ class AddressControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/addresses")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -191,7 +189,6 @@ class AddressControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/addresses")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -215,7 +212,6 @@ class AddressControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/addresses/" + address.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -241,7 +237,6 @@ class AddressControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/addresses/" + address.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -267,7 +262,6 @@ class AddressControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/addresses/9999") // 존재하지 않는 주소 ID
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 

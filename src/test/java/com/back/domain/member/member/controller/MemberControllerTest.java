@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -194,7 +193,6 @@ class MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/withdraw")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -217,7 +215,6 @@ class MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/withdraw")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -236,7 +233,6 @@ class MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/withdraw")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -245,4 +241,30 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));
     }
+
+    @Test
+    @DisplayName("회원 정보 조회")
+    @WithUserDetails("user1@gmail.com")
+    void getMemberInfo() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/members/info")
+                )
+                .andDo(print());
+
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMemberInfo"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("회원 정보가 조회됐습니다."))
+                .andExpect(jsonPath("$.data.id").value(member.getId()))
+                .andExpect(jsonPath("$.data.email").value(member.getEmail()))
+                .andExpect(jsonPath("$.data.name").value(member.getName()))
+                .andExpect(jsonPath("$.data.isAdmin").value(member.isAdmin()));
+    }
+
 }
