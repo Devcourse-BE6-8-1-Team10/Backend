@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@Tag(name = "OrderController", description = "주문 관련 API 컨트롤러")
+@Tag(name = "OrderController", description = "주문 API 컨트롤러")
 public class OrderController {
 
     private final OrderService orderService;
@@ -28,13 +28,14 @@ public class OrderController {
             @NotBlank @Email String customerEmail,
             @NotBlank String customerAddress,
             @NotEmpty List<OrderItemCreateReqBody> orderItems
-    ) {}
+    ) {
+    }
 
     public record OrderItemCreateReqBody(
             @NotNull Long productId,
-            @NotNull int count,
-            int price
-    ) {}
+            @NotNull int count
+    ) {
+    }
 
     @PostMapping
     @Operation(summary = "주문 생성 (더미 상품/멤버 사용)")
@@ -44,12 +45,26 @@ public class OrderController {
                 reqBody.customerAddress(),
                 reqBody.orderItems()
         );
-        return RsData.of("201-1", "%d번 주문 생성됨".formatted(order.getId()), new OrderDto(order));
+        return RsData.successOf(
+                new OrderDto(order)
+        );
     }
 
-    @GetMapping("/{orderId}")
-    public RsData<OrderDto> getOrder(@PathVariable Long orderId) {
+    @GetMapping("")
+    @Operation(summary = "주문 목록 조회")
+    public RsData<List<OrderDto>> getOrders() {
+        List<Order> orders = orderService.getAllOrders();
+        List<OrderDto> dtos = orders.stream()
+                .map(OrderDto::new)
+                .toList();
+        return RsData.successOf(dtos);
+    }
+
+    // 주문 상세 조회
+    @GetMapping("/{orderId}/detail")
+    @Operation(summary = "주문 상세 조회")
+    public RsData<OrderDto> getOrderDetail(@PathVariable Long orderId) {
         Order order = orderService.getOrderEntity(orderId);
-        return RsData.of("200", "success", new OrderDto(order));
+        return RsData.successOf(OrderDto.withItems(order));
     }
 }

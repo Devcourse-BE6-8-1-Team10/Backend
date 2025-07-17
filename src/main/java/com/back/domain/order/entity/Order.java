@@ -20,7 +20,7 @@ public class Order extends BaseEntityWithTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_email", referencedColumnName = "email")
-    private Member customerEmail;
+    private Member customer;
 
     private String customerAddress;
 
@@ -30,14 +30,15 @@ public class Order extends BaseEntityWithTime {
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
-//    public Order(Member customer, String customerAddress, String state) {
-//        this.customer = customer;
-//        this.customerAddress = customerAddress;
-//        this.state = state;
-//    }
+    public Order(Member customer, String customerAddress, String state) {
+        this.customer = customer;
+        this.customerAddress = customerAddress;
+        this.state = state;
+        this.orderItems = new ArrayList<>();
+    }
 
-//    public void addOrderItem(OrderItem orderItem) {
-//        orderItems.add(orderItem);
-//        orderItem.setOrder(this);
-//    }
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrder(this);
+    }
 }
