@@ -235,7 +235,7 @@ class MemberControllerTest {
     void withdraw_notLoggedIn() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/api/members/me")
+                        delete("/api/members/withdraw")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());

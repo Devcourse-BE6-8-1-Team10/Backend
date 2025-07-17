@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DevInitData {
     @Autowired
     @Lazy
-    private TestInitData self;
+    private DevInitData self;
     private final MemberService memberService;
 
     @Bean
