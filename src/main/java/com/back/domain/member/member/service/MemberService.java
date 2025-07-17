@@ -58,4 +58,10 @@ public class MemberService {
         return memberRepository.findByApiKey(apiKey);
     }
 
+    public void checkPassword(Member member, String password) {
+        if (!member.getPassword().equals(password)) {
+            throw new ServiceException(401, "비밀번호가 일치하지 않습니다.");
+        }
+    }
+
 }
