@@ -19,11 +19,12 @@ public class AuthTokenService {
         long id = member.getId();
         String email = member.getEmail();
         String name = member.getName();
+        boolean isAdmin = member.isAdmin();
 
         return Ut.jwt.toString(
                 jwtSecretKey,
                 accessTokenExpirationSeconds,
-                Map.of("id", id, "email", email, "name", name)
+                Map.of("id", id, "email", email, "name", name, "isAdmin", isAdmin)
         );
     }
 

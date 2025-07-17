@@ -100,7 +100,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 Long id = (Long) payload.get("id");
                 String email = (String) payload.get("email");
                 String name = (String) payload.get("name");
-                member = new Member(id, email, name);
+                boolean isAdmin = (Boolean) payload.get("isAdmin");
+                member = new Member(id, email, name, isAdmin);
 
                 isAccessTokenValid = true;
             }
@@ -125,6 +126,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 member.getEmail(),
                 member.getName(),
                 member.getPassword(),
+                member.isAdmin(),
                 member.getAuthorities()
         );
 

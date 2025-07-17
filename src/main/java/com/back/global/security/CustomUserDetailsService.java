@@ -23,6 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 member.getEmail(),
                 member.getName(),
                 "N/A",
+                member.isAdmin(),
                 member.getAuthorities()
         );
     }
