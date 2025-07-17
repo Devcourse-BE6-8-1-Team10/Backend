@@ -119,4 +119,10 @@ public class Member {
         return Optional.of(addresses.get(addresses.size() - 1));
     }
 
+    public Optional<Address> getDefaultAddress() {
+        return addresses.stream()
+                .filter(Address::getIsDefault)
+                .findFirst();
+    }
+
 }
