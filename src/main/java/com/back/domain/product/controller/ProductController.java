@@ -52,6 +52,22 @@ public class ProductController {
         return RsData.successOf(pageDto);
     }
 
+    @PostMapping("/products/upload")
+    @Transactional
+    public RsData<ProductDto> createWithImage(
+            @RequestPart("data") GCSReqBody reqBody,
+            @RequestPart("file") MultipartFile file
+    ) throws IOException {
+
+        Product product = productService.uploadObject(reqBody,file);
+
+        return new RsData<>(
+                201,
+                "%d번 상품이 생성되었습니다.".formatted(product.getId()),
+                new ProductDto(product)
+        );
+    }
+
     @Operation(
             summary = "상품 단건 조회",
             description = "상품 ID기반 상품의 상세 정보 조회"
@@ -159,22 +175,9 @@ public class ProductController {
                       @NotBlank String imageUrl,
                       @NotBlank String category,
                       @NotBlank String description,
-                      boolean orderable,
-                      MultipartFile file) {
+                      boolean orderable) {
     }
 
-    @PostMapping("/products/upload")
-    @Transactional
-    public RsData<ProductDto> createWithImage(GCSReqBody reqBody) throws IOException {
-
-        Product product = productService.uploadObject(reqBody);
-
-        return new RsData<>(
-                201,
-                "%d번 상품이 생성되었습니다.".formatted(product.getId()),
-                new ProductDto(product)
-        );
-    }
 
 
 }
