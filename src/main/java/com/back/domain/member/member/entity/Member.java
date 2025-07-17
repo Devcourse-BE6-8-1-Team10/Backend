@@ -71,7 +71,7 @@ public class Member {
     }
 
     // new 로 생성하는 경우.
-    public Member(int id, String email, String name){
+    public Member(Long id, String email, String name){
         if (email == null || email.trim().isEmpty())
             throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
         if (name == null || name.trim().isEmpty())
