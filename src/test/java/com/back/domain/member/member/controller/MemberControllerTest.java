@@ -3,6 +3,7 @@ package com.back.domain.member.member.controller;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.global.exception.ServiceException;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -67,25 +69,42 @@ class MemberControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "email": "testuser@gmail.com",
-                                            "password": "testpassword",
+                                            "email": "system@gmail.com",
+                                            "password": "1234",
                                         }
                                         """.stripIndent())
                 )
                 .andDo(print());
 
-        Member member = memberService.findByEmail("testuser@gmail.com").orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Member member = memberService.findByEmail("system@gmail.com").orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
         resultActions
                 .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("join"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.code").value(201))
-                .andExpect(jsonPath("$.message").value("%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName())))
+                .andExpect(handler().methodName("login"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("%s님 환영합니다.".formatted(member.getName())))
+                .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.id").value(member.getId()))
                 .andExpect(jsonPath("$.data.email").value(member.getEmail()))
-                .andExpect(jsonPath("$.data.name").value(member.getName()));
+                .andExpect(jsonPath("$.data.name").value(member.getName()))
+                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
+                .andExpect(jsonPath("$.data.isAdmin").value(member.isAdmin()))
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty());
 
+        resultActions.andExpect(
+                result -> {
+                    Cookie apiKeyCookie = result.getResponse().getCookie("apiKey");
+                    assertThat(apiKeyCookie.getValue()).isEqualTo(member.getApiKey());
+                    assertThat(apiKeyCookie.getPath()).isEqualTo("/");
+                    assertThat(apiKeyCookie.getAttribute("HttpOnly")).isEqualTo("true");
+
+                    Cookie accessTokenCookie = result.getResponse().getCookie("accessToken");
+                    assertThat(accessTokenCookie.getValue()).isNotBlank();
+                    assertThat(accessTokenCookie.getPath()).isEqualTo("/");
+                    assertThat(accessTokenCookie.getAttribute("HttpOnly")).isEqualTo("true");
+                }
+        );
     }
 
 }
