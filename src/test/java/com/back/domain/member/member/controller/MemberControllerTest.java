@@ -70,7 +70,7 @@ class MemberControllerTest {
                                 .content("""
                                         {
                                             "email": "system@gmail.com",
-                                            "password": "1234",
+                                            "password": "1234"
                                         }
                                         """.stripIndent())
                 )
@@ -85,10 +85,10 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("%s님 환영합니다.".formatted(member.getName())))
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.id").value(member.getId()))
-                .andExpect(jsonPath("$.data.email").value(member.getEmail()))
-                .andExpect(jsonPath("$.data.name").value(member.getName()))
-                .andExpect(jsonPath("$.data.isAdmin").value(member.isAdmin()))
+                .andExpect(jsonPath("$.data.member.id").value(member.getId()))
+                .andExpect(jsonPath("$.data.member.email").value(member.getEmail()))
+                .andExpect(jsonPath("$.data.member.name").value(member.getName()))
+                .andExpect(jsonPath("$.data.member.isAdmin").value(member.isAdmin()))
                 .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
                 .andExpect(jsonPath("$.data.accessToken").isNotEmpty());
 
@@ -117,7 +117,7 @@ class MemberControllerTest {
                                 .content("""
                                         {
                                             "email": "system@gmail.com",
-                                            "password": "wrong_password",
+                                            "password": "wrong_password"
                                         }
                                         """.stripIndent())
                 )
@@ -141,7 +141,7 @@ class MemberControllerTest {
                                 .content("""
                                         {
                                             "email": "wrong_system@gmail.com",
-                                            "password": "wrong_password",
+                                            "password": "wrong_password"
                                         }
                                         """.stripIndent())
                 )
@@ -152,6 +152,6 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.message").value("존재하지 않는 이메일 입니다"));
+                .andExpect(jsonPath("$.message").value("존재하지 않는 이메일입니다."));
     }
 }

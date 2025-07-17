@@ -68,7 +68,6 @@ public class MemberController {
             String email,
 
             @NotBlank
-            @Size(min = 8, max = 50)
             String password
     ) { }
 
@@ -83,7 +82,7 @@ public class MemberController {
     @Transactional
     @Operation(summary = "회원 로그인")
     public RsData<MemberLoginResBody> login(
-            @Valid @RequestBody MemberJoinReqBody reqBody
+            @Valid @RequestBody MemberLoginReqBody reqBody
     ) {
         Member member = memberService.findByEmail(reqBody.email())
                 .orElseThrow(() -> new ServiceException(401, "존재하지 않는 이메일입니다."));
@@ -95,7 +94,7 @@ public class MemberController {
 
         String accessToken = memberService.genAccessToken(member);
 
-        rq.setCookie("apkKey", member.getApiKey());
+        rq.setCookie("apiKey", member.getApiKey());
         rq.setCookie("accessToken", accessToken);
 
         return new RsData<>(
