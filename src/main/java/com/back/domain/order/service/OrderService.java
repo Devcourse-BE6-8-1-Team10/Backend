@@ -17,7 +17,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -45,6 +44,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional(readOnly = true)
     public Order getOrderEntity(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
@@ -55,9 +55,13 @@ public class OrderService {
     }
 
     @Transactional
-    public void delete(Long orderId) {
+    public void delete(Long orderId, Member actor) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
+
+        if (!order.getCustomer().getId().equals(actor.getId())) {
+            throw new ServiceException(403, "%d번 주문 삭제 권한이 없습니다.".formatted(order.getId()));
+        }
 
         orderRepository.delete(order);
     }
