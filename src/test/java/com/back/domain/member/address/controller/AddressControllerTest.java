@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -125,4 +126,81 @@ class AddressControllerTest {
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("content-NotBlank-must not be blank"));
     }
+
+    @Test
+    @DisplayName("전체 주소 조회")
+    @WithUserDetails("user1@gmail.com")
+    void getAddressList() throws Exception {
+        // Given: 유저가 존재하고, 여러 주소가 등록되어 있음
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
+
+        addressService.submitAddress(member, "서울특별시");
+        addressService.submitAddress(member, "부산광역시");
+        addressService.submitAddress(member, "대구광역시");
+
+        // When: 주소 목록을 조회하는 API를 호출
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/addresses")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // Then: 주소 목록이 올바르게 반환되고, 상태 코드가 200이어야 함
+        resultActions
+                .andExpect(handler().handlerType(AddressController.class))
+                .andExpect(handler().methodName("getAddressList"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주소 목록을 조회했습니다."))
+                .andExpect(jsonPath("$.data.length()").value(3))
+                .andExpect(jsonPath("$.data[0].content").value("서울특별시"))
+                .andExpect(jsonPath("$.data[1].content").value("부산광역시"))
+                .andExpect(jsonPath("$.data[2].content").value("대구광역시"));
+    }
+
+    @Test
+    @DisplayName("전체 주소 조회 - 주소 목록이 비어있음")
+    @WithUserDetails("user1@gmail.com")
+    void getAddressList_emptyList() throws Exception {
+        // Given: 유저가 존재하고, 여러 주소가 등록되어 있음
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
+
+        // When: 주소 목록을 조회하는 API를 호출
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/addresses")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // Then: 빈 주소 목록이 올바르게 반환되고, 상태 코드가 200이어야 함
+        resultActions
+                .andExpect(handler().handlerType(AddressController.class))
+                .andExpect(handler().methodName("getAddressList"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주소 목록을 조회했습니다."))
+                .andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("전체 주소 조회 - 인증된 유저가 없음")
+    void getAddressList_withoutAuth() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/addresses")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));
+    }
+
+
 }
