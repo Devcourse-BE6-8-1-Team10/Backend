@@ -1,20 +1,68 @@
 package com.back.domain.product.service;
 
+import com.back.domain.product.controller.ProductController;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.repository.ProductRepository;
+import com.back.global.exception.ServiceException;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private String bucketName = "cafe-image-storage-2025";
+
+    public Product uploadObject(ProductController.GCSReqBody reqBody) throws IOException {
+
+        if (reqBody.file() == null || reqBody.file().isEmpty()) {
+            throw new ServiceException(400,"파일이 첨부되지 않았습니다.");
+        }
+
+        String keyFileName = "cafeimagestorage-e894a0d38084.json";
+        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
+
+        Storage storage = StorageOptions.newBuilder()
+                .setCredentials(GoogleCredentials.fromStream(keyFile))
+                .build()
+                .getService();
+
+        String fileName = UUID.randomUUID().toString() + "-" + reqBody.file().getOriginalFilename();
+
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
+                .setContentType(reqBody.file().getContentType())
+                .build();
+
+        storage.create(blobInfo, reqBody.file().getInputStream());
+
+        // Public URL 만들기
+        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + fileName;
+
+        return productRepository.save(
+                Product.builder()
+                        .productName(reqBody.productName())
+                        .price(reqBody.price())
+                        .imageUrl(imageUrl) // 여기에 넣기
+                        .category(reqBody.category())
+                        .description(reqBody.description())
+                        .orderable(reqBody.orderable())
+                        .build());
+    }
+
 
     public Product create(String productName, int price, String imageUrl,
                           String category, String description, boolean orderable) {
