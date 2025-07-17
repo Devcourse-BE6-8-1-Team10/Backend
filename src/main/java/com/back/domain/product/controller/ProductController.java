@@ -22,10 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@RestController
-@RequiredArgsConstructor
-@Tag(name = "ProductController", description = "상품 API")
 @Validated
+@Tag(name = "ProductController", description = "상품 API")
+@RequiredArgsConstructor
+@RestController
 public class ProductController {
     private final ProductService productService;
 
@@ -50,6 +50,13 @@ public class ProductController {
 
         PageDto pageDto = new PageDto(productPage);
         return RsData.successOf(pageDto);
+    }
+
+    public record GCSReqBody(@NotBlank String productName,
+                             @Positive int price,
+                             @NotBlank String category,
+                             @NotBlank String description,
+                             boolean orderable) {
     }
 
     @PostMapping("/products/upload")
@@ -86,14 +93,14 @@ public class ProductController {
                 new ProductDto(product)
         );
     }
-
-
     record CreateReqBody(@NotBlank String productName,
                          @Positive int price,
                          @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
                          boolean orderable) {
+
+
     }
 
     @Operation(
@@ -116,13 +123,13 @@ public class ProductController {
 
     }
 
-
     record ModifyReqBody(@NotBlank String productName,
                          @Positive int price,
                          @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
                          boolean orderable) {
+
     } //boolean은 false
 
     @Operation(
@@ -169,14 +176,6 @@ public class ProductController {
         );
 
 
-    }
-
-    public record GCSReqBody(@NotBlank String productName,
-                      @Positive int price,
-                      @NotBlank String imageUrl,
-                      @NotBlank String category,
-                      @NotBlank String description,
-                      boolean orderable) {
     }
 
 
