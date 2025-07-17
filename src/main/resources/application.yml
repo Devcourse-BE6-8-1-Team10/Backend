@@ -1,4 +1,12 @@
 spring:
+  spring:
+    cloud:
+      gcp:
+        storage:
+          credentials:
+            location: classpath:cafeimagestorage-e894a0d38084.json
+          project-id: cafeimagestorage
+
   profiles:
     active: dev
   jpa:

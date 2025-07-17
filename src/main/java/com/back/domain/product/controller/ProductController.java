@@ -18,10 +18,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "ProductController" ,description = "상품 API")
+@Tag(name = "ProductController", description = "상품 API")
 @Validated
 public class ProductController {
     private final ProductService productService;
@@ -37,15 +40,15 @@ public class ProductController {
             @RequestParam(defaultValue = "5") @Min(1) @Max(100) int pageSize
     ) {
 
-        Page<Product> productPage = productService.getItems(page,pageSize);
+        Page<Product> productPage = productService.getItems(page, pageSize);
 
 
-        if(productPage.isEmpty()) { //목록이없더라도, 200 빈데이터 반환
+        if (productPage.isEmpty()) { //목록이없더라도, 200 빈데이터 반환
             PageDto emptyPageDto = new PageDto(productPage);
             return RsData.successOf(emptyPageDto);
         }
 
-       PageDto pageDto = new PageDto(productPage);
+        PageDto pageDto = new PageDto(productPage);
         return RsData.successOf(pageDto);
     }
 
@@ -55,10 +58,10 @@ public class ProductController {
     )
     @GetMapping("/products/{id}")
     @Transactional(readOnly = true)
-    public RsData<ProductDto> getItem(@PathVariable long id)  {
+    public RsData<ProductDto> getItem(@PathVariable long id) {
 
         Product product = productService.getItem(id).orElseThrow(
-                ()->new ServiceException(404,"없는 상품입니다.")
+                () -> new ServiceException(404, "없는 상품입니다.")
         );
 
         return new RsData<>(
@@ -74,7 +77,9 @@ public class ProductController {
                          @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
-                         boolean orderable) { }
+                         boolean orderable) {
+    }
+
     @Operation(
             summary = "상품 생성",
             description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
@@ -101,7 +106,8 @@ public class ProductController {
                          @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
-                         boolean orderable) { } //boolean은 false
+                         boolean orderable) {
+    } //boolean은 false
 
     @Operation(
             summary = "상품 수정",
@@ -109,10 +115,10 @@ public class ProductController {
     )
     @PutMapping("/products/{id}")
     @Transactional
-    public  RsData<ProductDto> modify(@PathVariable long id, @RequestBody @Valid ModifyReqBody reqBody) {
+    public RsData<ProductDto> modify(@PathVariable long id, @RequestBody @Valid ModifyReqBody reqBody) {
 
         Product product = productService.getItem(id).orElseThrow(
-                () -> new ServiceException(404,"존재하지 않는 상품입니다")
+                () -> new ServiceException(404, "존재하지 않는 상품입니다")
         );
 
         productService.modify(product, reqBody.productName(), reqBody.price(), reqBody.imageUrl(),
@@ -134,7 +140,7 @@ public class ProductController {
     public RsData<Void> delete(@PathVariable long id) {
 
         Product product = productService.getItem(id).orElseThrow(
-                () -> new ServiceException(404,"존재하지 않는 상품입니다.")
+                () -> new ServiceException(404, "존재하지 않는 상품입니다.")
         );
 
         productService.delete(product);
@@ -146,6 +152,28 @@ public class ProductController {
         );
 
 
+    }
+
+    public record GCSReqBody(@NotBlank String productName,
+                      @Positive int price,
+                      @NotBlank String imageUrl,
+                      @NotBlank String category,
+                      @NotBlank String description,
+                      boolean orderable,
+                      MultipartFile file) {
+    }
+
+    @PostMapping("/products/upload")
+    @Transactional
+    public RsData<ProductDto> createWithImage(GCSReqBody reqBody) throws IOException {
+
+        Product product = productService.uploadObject(reqBody);
+
+        return new RsData<>(
+                201,
+                "%d번 상품이 생성되었습니다.".formatted(product.getId()),
+                new ProductDto(product)
+        );
     }
 
 
