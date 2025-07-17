@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,9 +28,9 @@ public class ProductService {
     private final ProductRepository productRepository;
     private String bucketName = "cafe-image-storage-2025";
 
-    public Product uploadObject(ProductController.GCSReqBody reqBody) throws IOException {
+    public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
 
-        if (reqBody.file() == null || reqBody.file().isEmpty()) {
+        if (file == null || file.isEmpty()) {
             throw new ServiceException(400,"파일이 첨부되지 않았습니다.");
         }
 
@@ -41,13 +42,13 @@ public class ProductService {
                 .build()
                 .getService();
 
-        String fileName = UUID.randomUUID().toString() + "-" + reqBody.file().getOriginalFilename();
+        String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
 
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
-                .setContentType(reqBody.file().getContentType())
+                .setContentType(file.getContentType())
                 .build();
 
-        storage.create(blobInfo, reqBody.file().getInputStream());
+        storage.create(blobInfo, file.getInputStream());
 
         // Public URL 만들기
         String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + fileName;
