@@ -124,7 +124,9 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴")
     @Transactional
     public RsData<Void> withdraw() {
-        Member member = rq.getActor();
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
 
         memberService.withdraw(member);
 
