@@ -72,7 +72,7 @@ public class OrderControllerTest {
         var result = mvc.perform(post("/api/orders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.id").exists())
                 .andExpect(jsonPath("$.data.customerEmail").value("test1@email.com"))
                 .andExpect(jsonPath("$.data.state").value("ORDERED"))

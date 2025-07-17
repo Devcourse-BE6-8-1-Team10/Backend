@@ -1,6 +1,7 @@
 package com.back.domain.order.controller;
 
 import com.back.domain.order.dto.OrderDto;
+import com.back.domain.order.dto.OrderDtoWithSpecific;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.service.OrderService;
 import com.back.global.rsData.RsData;
@@ -38,14 +39,16 @@ public class OrderController {
     }
 
     @PostMapping
-    @Operation(summary = "주문 생성 (더미 상품/멤버 사용)")
+    @Operation(summary = "주문 생성") // (더미 상품/멤버 사용)
     public RsData<OrderDto> createOrder(@Valid @RequestBody OrderCreateReqBody reqBody) {
         Order order = orderService.createOrder(
                 reqBody.customerEmail(),
                 reqBody.customerAddress(),
                 reqBody.orderItems()
         );
-        return RsData.successOf(
+        return new RsData<>(
+                201,
+                "%s번 주문이 생성되었습니다.".formatted(order.getId()),
                 new OrderDto(order)
         );
     }
@@ -57,14 +60,21 @@ public class OrderController {
         List<OrderDto> dtos = orders.stream()
                 .map(OrderDto::new)
                 .toList();
-        return RsData.successOf(dtos);
+        return new RsData<>(
+                200,
+                "주문 조회에 성공했습니다.",
+                dtos
+        );
     }
 
     // 주문 상세 조회
     @GetMapping("/{orderId}/detail")
     @Operation(summary = "주문 상세 조회")
-    public RsData<OrderDto> getOrderDetail(@PathVariable Long orderId) {
+    public RsData<OrderDtoWithSpecific> getOrderDetail(@PathVariable Long orderId) {
         Order order = orderService.getOrderEntity(orderId);
-        return RsData.successOf(OrderDto.withItems(order));
+        return new RsData<>(
+                200,
+                "주문 상세 조회에 성공했습니다.",
+                new OrderDtoWithSpecific(order));
     }
 }

@@ -19,13 +19,13 @@ public class Dummy implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // 👤 Member 더미 삽입
+        // Member 더미 삽입
         if (memberRepository.count() == 0) {
             Member member = new Member("test@naver.com", "password123", "홍길동", false);
             memberRepository.save(member);
         }
 
-        // 🛒 Product 더미 삽입
+        // Product 더미 삽입
         if (productRepository.count() == 0) {
             productRepository.save(Product.builder()
                     .productName("아메리카노")

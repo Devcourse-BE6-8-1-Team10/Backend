@@ -36,17 +36,4 @@ public record OrderDto(
                 null
         );
     }
-    // 주문 상세 조회 (아이템 포함)
-    public static OrderDto withItems(Order order) {
-        return new OrderDto(
-                order.getId(),
-                order.getCustomer().getEmail(),
-                order.getCreatedDate(),
-                order.getState(),
-                order.getCustomerAddress(),
-                order.getOrderItems().stream()
-                        .map(OrderItemDto::new)
-                        .toList()
-        );
-    }
 }
