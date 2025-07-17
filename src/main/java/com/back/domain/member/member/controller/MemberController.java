@@ -1,8 +1,11 @@
 package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.dto.MemberDto;
+import com.back.domain.member.member.dto.MemberWithAuthDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.global.exception.ServiceException;
+import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,10 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "MemberController", description = "회원 관련 API 컨트롤러")
 public class MemberController {
     private final MemberService memberService;
+    private final Rq rq;
 
     record MemberJoinReqBody(
             @NotBlank
@@ -58,6 +59,64 @@ public class MemberController {
         );
     }
 
+    record MemberLoginReqBody(
+            @NotBlank
+            @Email
+            String email,
+
+            @NotBlank
+            String password
+    ) { }
+
+    record MemberLoginResBody(
+            MemberWithAuthDto member,
+            String apiKey,
+            String accessToken
+    ) { }
+
+
+    @PostMapping("/login")
+    @Transactional
+    @Operation(summary = "회원 로그인")
+    public RsData<MemberLoginResBody> login(
+            @Valid @RequestBody MemberLoginReqBody reqBody
+    ) {
+        Member member = memberService.findByEmail(reqBody.email())
+                .orElseThrow(() -> new ServiceException(401, "존재하지 않는 이메일입니다."));
+
+        memberService.checkPassword(
+                member,
+                reqBody.password()
+        );
+
+        String accessToken = memberService.genAccessToken(member);
+
+        rq.setCookie("apiKey", member.getApiKey());
+        rq.setCookie("accessToken", accessToken);
+
+        return new RsData<>(
+                200,
+                "%s님 환영합니다.".formatted(member.getName()),
+                new MemberLoginResBody(
+                        new MemberWithAuthDto(member),
+                        member.getApiKey(),
+                        accessToken
+                )
+        );
+    }
+
+    @DeleteMapping("/logout")
+    @Operation(summary = "회원 로그아웃")
+    public RsData<Void> logout(){
+        rq.deleteCookie("apiKey");
+        rq.deleteCookie("accessToken");
+
+        return new RsData<>(
+                200,
+                "로그아웃 됐습니다.",
+                null
+        );
+    }
 
 
 
