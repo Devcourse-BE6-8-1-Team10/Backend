@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -154,4 +155,29 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 이메일입니다."));
     }
+
+    @Test
+    @DisplayName("로그 아웃")
+    void logout() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/members/logout")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("logout"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.msg").value("로그아웃 됐습니다."))
+                .andExpect(result -> {
+                    Cookie apiKeyCookie = result.getResponse().getCookie("apiKey");
+                    assertThat(apiKeyCookie.getValue()).isEmpty();
+                    assertThat(apiKeyCookie.getMaxAge()).isEqualTo(0);
+                    assertThat(apiKeyCookie.getPath()).isEqualTo("/");
+                    assertThat(apiKeyCookie.isHttpOnly()).isTrue();
+                });
+    }
+
 }
