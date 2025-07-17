@@ -2,6 +2,7 @@ package com.back.domain.member.address.entity;
 
 import com.back.domain.member.member.entity.Member;
 import jakarta.persistence.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.*;
 
 @Entity
@@ -14,9 +15,9 @@ public class Address {
     @Setter(AccessLevel.PRIVATE)
     @EqualsAndHashCode.Include
     private Long id;
-    
+
     @Column(nullable=false)
-    private String address;
+    private String content;
 
     @Column(nullable=false)
     private Boolean isDefault;
@@ -26,19 +27,19 @@ public class Address {
     private Member member;
 
     // ------------ [생성자] ------------
-    public Address(String address, Boolean isDefault, Member member) {
-        if (address == null || address.isBlank())
-            throw new IllegalArgumentException("주소는 비어있을 수 없습니다.");
+    public Address(String content, Boolean isDefault, Member member) {
+        if (content == null || content.isBlank())
+            throw new ConstraintViolationException("주소 내용은 비어있을 수 없습니다.", null);
         if (member == null)
-            throw new IllegalArgumentException("회원 정보는 비어있을 수 없습니다.");
+            throw new ConstraintViolationException("회원 정보는 비어있을 수 없습니다.", null);
 
-        this.address = address;
+        this.content = content;
         this.isDefault = isDefault;
         this.member = member;
     }
 
-    public Address(String address, Member member){
-        this(address, false, member);
+    public Address(String content, Member member){
+        this(content, false, member);
     }
 
     // ------------ [메서드] ------------

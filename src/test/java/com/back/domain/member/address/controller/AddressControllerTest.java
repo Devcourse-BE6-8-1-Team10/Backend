@@ -66,7 +66,7 @@ class AddressControllerTest {
                 .andExpect(jsonPath("$.code").value(201))
                 .andExpect(jsonPath("$.message").value("주소가 등록되었습니다."))
                 .andExpect(jsonPath("$.data.id").value(address.getId()))
-                .andExpect(jsonPath("$.data.address").value(address.getAddress()))
+                .andExpect(jsonPath("$.data.address").value(address.getContent()))
                 .andExpect(jsonPath("$.data.memberId").value(member.getId()));
 
         assertThat(address.getMember()).isEqualTo(member);
@@ -121,8 +121,8 @@ class AddressControllerTest {
         resultActions
                 .andExpect(handler().handlerType(AddressController.class))
                 .andExpect(handler().methodName("submitAddress"))
-                .andExpect(status().isCreated())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("요청 본문이 올바르지 않습니다."));
+                .andExpect(jsonPath("$.message").value("주소는 비어있을 수 없습니다."));
     }
 }
