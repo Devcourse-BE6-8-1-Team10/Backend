@@ -109,6 +109,7 @@ public class MemberController {
     @Operation(summary = "회원 로그아웃")
     public RsData<Void> logout(){
         rq.deleteCookie("apiKey");
+        rq.deleteCookie("accessToken");
 
         return new RsData<>(
                 200,
