@@ -88,8 +88,8 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.data.id").value(member.getId()))
                 .andExpect(jsonPath("$.data.email").value(member.getEmail()))
                 .andExpect(jsonPath("$.data.name").value(member.getName()))
-                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
                 .andExpect(jsonPath("$.data.isAdmin").value(member.isAdmin()))
+                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
                 .andExpect(jsonPath("$.data.accessToken").isNotEmpty());
 
         resultActions.andExpect(
@@ -128,7 +128,7 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.message").value("잘못된 비밀번호 입니다"));
+                .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
     }
 
     @Test

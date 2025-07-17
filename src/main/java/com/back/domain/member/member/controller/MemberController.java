@@ -1,8 +1,11 @@
 package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.dto.MemberDto;
+import com.back.domain.member.member.dto.MemberWithAuthDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.global.exception.ServiceException;
+import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "MemberController", description = "회원 관련 API 컨트롤러")
 public class MemberController {
     private final MemberService memberService;
+    private final Rq rq;
 
     record MemberJoinReqBody(
             @NotBlank
@@ -55,6 +59,53 @@ public class MemberController {
                 201,
                 "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
                 new MemberDto(member)
+        );
+    }
+
+    record MemberLoginReqBody(
+            @NotBlank
+            @Email
+            String email,
+
+            @NotBlank
+            @Size(min = 8, max = 50)
+            String password
+    ) { }
+
+    record MemberLoginResBody(
+            MemberWithAuthDto member,
+            String apiKey,
+            String accessToken
+    ) { }
+
+
+    @PostMapping("/login")
+    @Transactional
+    @Operation(summary = "회원 로그인")
+    public RsData<MemberLoginResBody> login(
+            @Valid @RequestBody MemberJoinReqBody reqBody
+    ) {
+        Member member = memberService.findByEmail(reqBody.email())
+                .orElseThrow(() -> new ServiceException(401, "존재하지 않는 이메일입니다."));
+
+        memberService.checkPassword(
+                member,
+                reqBody.password()
+        );
+
+        String accessToken = memberService.genAccessToken(member);
+
+        rq.setCookie("apkKey", member.getApiKey());
+        rq.setCookie("accessToken", accessToken);
+
+        return new RsData<>(
+                200,
+                "%s님 환영합니다.".formatted(member.getName()),
+                new MemberLoginResBody(
+                        new MemberWithAuthDto(member),
+                        member.getApiKey(),
+                        accessToken
+                )
         );
     }
 
