@@ -97,7 +97,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             Map<String, Object> payload = memberService.payload(accessToken);
 
             if (payload != null) {
-                int id = (int) payload.get("id");
+                Long id = (Long) payload.get("id");
                 String email = (String) payload.get("email");
                 String name = (String) payload.get("name");
                 member = new Member(id, email, name);
