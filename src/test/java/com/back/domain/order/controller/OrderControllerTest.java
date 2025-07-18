@@ -44,7 +44,6 @@ public class OrderControllerTest {
     @DisplayName("1. 주문 생성")
     void t1() throws Exception {
         Map<String, Object> request = Map.of(
-                "customerEmail", "user1@gmail.com",
                 "customerAddress", "서울시 강남구 테헤란로 123",
                 "orderItems", List.of(
                         Map.of("productId", 1, "count", 2),
@@ -94,31 +93,10 @@ public class OrderControllerTest {
     }
 
     @Test
-    @WithUserDetails("user1@gmail.com") // 인증된 유저는 실제 유저
-    @Order(4)
-    @DisplayName("4. 주문 생성 실패 - 없는 회원")
-    void t4() throws Exception {
-
-        Map<String, Object> request = Map.of(
-                "customerEmail", "noone@email.com", // 없는 유저
-                "customerAddress", "서울시",
-                "orderItems", List.of(
-                        Map.of("productId", 1, "count", 2)
-                )
-        );
-
-        performWithPrint(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다."));
-    }
-
-    @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(5)
-    @DisplayName("5. 주문 생성 실패 - 없는 상품")
-    void t5() throws Exception {
+    @Order(4)
+    @DisplayName("4. 주문 생성 실패 - 없는 상품")
+    void t4() throws Exception {
 
         Map<String, Object> request = Map.of(
                 "customerEmail", "user1@gmail.com",
@@ -137,9 +115,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(6)
-    @DisplayName("6. 배송지 변경 성공")
-    void t6() throws Exception {
+    @Order(5)
+    @DisplayName("5. 배송지 변경 성공")
+    void t5() throws Exception {
         performWithPrint(put("/api/orders/{orderId}/address", savedOrderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Map.of("newAddress", "서울역"))))
@@ -149,9 +127,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user2@gmail.com")
-    @Order(7)
-    @DisplayName("7. 배송지 변경 실패 - 권한 없음")
-    void t7() throws Exception {
+    @Order(6)
+    @DisplayName("6. 배송지 변경 실패 - 권한 없음")
+    void t6() throws Exception {
         performWithPrint(put("/api/orders/{orderId}/address", savedOrderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Map.of("newAddress", "서울역"))))
@@ -161,9 +139,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(8)
-    @DisplayName("8. 배송지 변경 실패 - 빈 주소")
-    void t8() throws Exception {
+    @Order(7)
+    @DisplayName("7. 배송지 변경 실패 - 빈 주소")
+    void t7() throws Exception {
         performWithPrint(put("/api/orders/{orderId}/address", savedOrderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Map.of("newAddress", ""))))
@@ -172,9 +150,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(9)
-    @DisplayName("9. 배송지 변경 실패 - 주문 없음")
-    void t9() throws Exception {
+    @Order(8)
+    @DisplayName("8. 배송지 변경 실패 - 주문 없음")
+    void t8() throws Exception {
         performWithPrint(put("/api/orders/999999/address")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Map.of("newAddress", "서울역"))))
@@ -184,9 +162,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user2@gmail.com")
-    @Order(10)
-    @DisplayName("10. 주문 삭제 실패 - 권한 없음")
-    void t10() throws Exception {
+    @Order(9)
+    @DisplayName("9. 주문 삭제 실패 - 권한 없음")
+    void t9() throws Exception {
 
         performWithPrint(delete("/api/orders/{orderId}", savedOrderId))
                 .andExpect(jsonPath("$.code").value(403))
@@ -195,9 +173,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(11)
-    @DisplayName("11. 주문 취소 - 권한 있음")
-    void t11() throws Exception {
+    @Order(10)
+    @DisplayName("10. 주문 취소 - 권한 있음")
+    void t10() throws Exception {
         Assertions.assertNotNull(savedOrderId, "t1에서 주문이 생성되지 않았습니다.");
 
         performWithPrint(delete("/api/orders/{orderId}", savedOrderId)
@@ -210,9 +188,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(12)
-    @DisplayName("12. 주문 취소 후 조회 시 404 확인")
-    void t12() throws Exception {
+    @Order(11)
+    @DisplayName("11. 주문 취소 후 조회 시 404 확인")
+    void t11() throws Exception {
         Assertions.assertNotNull(savedOrderId, "삭제된 주문 ID가 null입니다.");
 
         performWithPrint(get("/api/orders/{orderId}/detail", savedOrderId))
@@ -222,9 +200,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(13)
-    @DisplayName("13. 주문 삭제 실패 - 존재하지 않는 주문")
-    void t13() throws Exception {
+    @Order(12)
+    @DisplayName("12. 주문 삭제 실패 - 존재하지 않는 주문")
+    void t12() throws Exception {
         Long nonExistentOrderId = 999999L;
 
         performWithPrint(delete("/api/orders/{orderId}", nonExistentOrderId)
