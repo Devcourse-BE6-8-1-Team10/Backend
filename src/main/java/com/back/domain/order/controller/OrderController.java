@@ -3,6 +3,7 @@ package com.back.domain.order.controller;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.order.dto.OrderDto;
 import com.back.domain.order.dto.OrderDtoWithSpecific;
+import com.back.domain.order.dto.OrderItemCreateReqBody;
 import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.service.OrderService;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,14 +34,6 @@ public class OrderController {
     ) {
     }
 
-    public record OrderItemCreateReqBody(
-            @NotNull Long productId,
-            @NotNull int count
-    ) {
-        public OrderItemParam toParam() {
-            return new OrderItemParam(productId, count);
-        }
-    }
 
     @PostMapping
     @Operation(summary = "주문 생성")
