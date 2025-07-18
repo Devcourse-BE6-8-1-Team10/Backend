@@ -9,7 +9,6 @@ import com.back.global.exception.ServiceException;
 import com.back.standard.util.Ut;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.Cookie;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Slf4j
 class MemberControllerTest {
     @Autowired
     private MemberService memberService;
@@ -403,9 +401,6 @@ class MemberControllerTest {
 
         assertThat(dataArray).hasSize(2); // 주문 2건
 
-        log.debug("첫번째 주문 아이템 길이: {}", order1.getOrderItems().size());
-        log.debug("두번째 주문 아이템 길이: {}", order2.getOrderItems().size());
-
         // 첫 번째 주문의 주문 아이템들
         JsonNode orderItems1 = dataArray.get(1).get("orderItems");
         assertThat(orderItems1).hasSize(order1.getOrderItems().size());
@@ -421,7 +416,7 @@ class MemberControllerTest {
 
         // 두 번째 주문의 주문 아이템들
         JsonNode orderItems2 = dataArray.get(0).get("orderItems");
-        assertThat(orderItems2).hasSize(1);
+        assertThat(orderItems2).hasSize(order2.getOrderItems().size());
         assertThat(orderItems2.get(0).get("productName").asText()).isEqualTo("카푸치노(Ice)");
         assertThat(orderItems2.get(0).get("productId").asLong()).isEqualTo(3L);
         assertThat(orderItems2.get(0).get("count").asInt()).isEqualTo(1);

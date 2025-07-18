@@ -1,7 +1,6 @@
 package com.back.domain.order.service;
 
 import com.back.domain.member.member.entity.Member;
-import com.back.domain.member.member.repository.MemberRepository;
 import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.entity.OrderItem;
@@ -20,7 +19,6 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final MemberRepository memberRepository;
     private  final ProductRepository productRepository;
 
     @Transactional
