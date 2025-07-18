@@ -79,6 +79,10 @@ public class ProductController {
         );
     }
 
+    @Operation(
+            summary = "상품 생성",
+            description = "json형식 데이터 + file형식으로 상품을 생성합니다"
+    )
     @PostMapping("/products")
     @Transactional
     public RsData<ProductDto> createWithImage(
@@ -86,7 +90,7 @@ public class ProductController {
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException {
 
-        Product product=productService.uploadObject(reqBody, file);
+        Product product = productService.uploadObject(reqBody, file);
 
         return new RsData<>(
                 201,
@@ -97,7 +101,6 @@ public class ProductController {
 
     record ModifyReqBody(@NotBlank String productName,
                          @Positive int price,
-                         @NotBlank String imageUrl,
                          @NotBlank String category,
                          @NotBlank String description,
                          boolean orderable) {
@@ -106,17 +109,32 @@ public class ProductController {
 
     @Operation(
             summary = "상품 수정",
-            description = "일단 수정"
+            description = """
+                    수정할때도 json형식+file 형태의 값을 입력해야함
+                    시나리오1: 이미지 수정 없음
+                    시나리오2: 새 이미지 업로드
+                    """
+
     )
     @PutMapping("/products/{id}")
     @Transactional
-    public RsData<ProductDto> modify(@PathVariable long id, @RequestBody @Valid ModifyReqBody reqBody) {
+    public RsData<ProductDto> modifywithImage(
+            @PathVariable long id,
+            @RequestPart("data") @Valid ModifyReqBody reqBody,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws IOException {
 
         Product product = productService.getItem(id).orElseThrow(
                 () -> new ServiceException(404, "존재하지 않는 상품입니다")
         );
 
-        productService.modify(product, reqBody.productName(), reqBody.price(), reqBody.imageUrl(),
+        //여기서 이미지바꾸는 로직 넣고
+        productService.modifyImage(product, file);
+
+        System.out.println("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ"+product.getImageUrl());
+
+        //나머지 정보 수정
+        productService.modify(product, reqBody.productName(), reqBody.price(), product.getImageUrl(),
                 reqBody.category(), reqBody.description(), reqBody.orderable());
 
         return new RsData<>(
@@ -149,7 +167,6 @@ public class ProductController {
 
 
     }
-
 
 
 }
