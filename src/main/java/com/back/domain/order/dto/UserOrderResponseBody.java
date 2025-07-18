@@ -8,7 +8,7 @@ import com.back.domain.order.entity.Order;
 public record UserOrderResponseBody(
         Long orderId,
         String orderDate,
-        String state,
+        String status,
         String customerAddress,
         UserOrderItemResponseDto[] orderItems
 ) {
