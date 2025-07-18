@@ -36,7 +36,7 @@ public class Order {
     private LocalDateTime modifiedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_email", referencedColumnName = "email")
+    @JoinColumn(name = "customer_email", referencedColumnName = "email", nullable = true)
     private Member customer;
 
     private String customerAddress;
