@@ -1,6 +1,7 @@
 package com.back.domain.member.member.entity;
 
 import com.back.domain.member.address.entity.Address;
+import com.back.domain.order.entity.Order;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -45,8 +46,16 @@ public class Member {
         orphanRemoval = true
     )
     @OrderBy("id ASC") // 주소는 등록된 순서대로 정렬
-    private List<Address> addresses = new ArrayList<>();
+    private final List<Address> addresses = new ArrayList<>();
 
+    @OneToMany(
+        mappedBy = "customer",
+        fetch = FetchType.LAZY,
+        cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+        orphanRemoval = true
+    )
+    @OrderBy("createdDate DESC") // 주문은 최신순으로 정렬
+    private final List<Order> orders = new ArrayList<>();
 
     // ------------ [생성자 + 빌더] ------------
 

@@ -3,6 +3,7 @@ package com.back.domain.member.member.service;
 import com.back.domain.member.member.dto.MemberUpdateDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.repository.MemberRepository;
+import com.back.domain.order.dto.UserOrderResponseBody;
 import com.back.global.exception.ServiceException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -104,5 +105,11 @@ public class MemberService {
                 reqBody.name()
         );
         memberRepository.save(member);
+    }
+
+    public UserOrderResponseBody[] getMemberOrders(Member member) {
+        return member.getOrders().stream()
+                .map(UserOrderResponseBody::new)
+                .toArray(UserOrderResponseBody[]::new);
     }
 }
