@@ -55,15 +55,14 @@ public class ProductService {
     public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
 
         // 1. 우선 상품을 imageUrl 없이 저장
-        Product product = productRepository.save(
-                Product.builder()
-                        .productName(reqBody.productName())
-                        .price(reqBody.price())
-                        .imageUrl("") // 나중에 업데이트
-                        .category(reqBody.category())
-                        .description(reqBody.description())
-                        .orderable(reqBody.orderable())
-                        .build());
+        Product product = create(
+                reqBody.productName(),
+                reqBody.price(),
+                "", // 이미지 URL은 비워둔다
+                reqBody.category(),
+                reqBody.description(),
+                reqBody.orderable()
+        );
 
         // 2. 파일이 비어있으면 바로 반환
         if (file == null || file.isEmpty()) {
