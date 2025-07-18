@@ -177,6 +177,22 @@ public class MemberController {
         );
     }
 
+    @GetMapping("/orders")
+    @Operation(summary = "회원 주문 내역 전체 조회")
+    public RsData<?> getMemberOrders() {
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+
+        memberService.getMemberOrders(member);
+
+        return new RsData<>(
+                200,
+                "회원 주문 내역이 조회됐습니다.",
+                memberService.getMemberOrders(member)
+        );
+    }
+
 
 
 }
