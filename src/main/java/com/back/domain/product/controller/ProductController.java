@@ -2,6 +2,7 @@ package com.back.domain.product.controller;
 
 import com.back.domain.product.dto.PageDto;
 import com.back.domain.product.dto.ProductDto;
+import com.back.domain.product.dto.ProductWithOrderable;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.service.ProductService;
 import com.back.global.exception.ServiceException;
@@ -167,6 +168,36 @@ public class ProductController {
 
 
     }
+    record OrderReqBody (boolean orderable) {}
 
+    @Operation(
+            summary = "주문 가능 불가능 설정",
+            description = "상품의 주문 가능 여부를 true 또는 false로 변경, 데이터는 orderable만 보냅니다"
+    )
+    @Transactional
+    @PutMapping("/products/{id}/orderable")
+    public RsData<ProductWithOrderable> isOrderable( @PathVariable long id,
+                                     @RequestBody OrderReqBody reqBody) {
+
+        Product product = productService.getItem(id).orElseThrow(
+                () -> new ServiceException(404,"존재하지 않는 상품입니다.")
+        );
+
+        productService.updateOrderable(product,reqBody.orderable());
+
+        String message = String.format(
+                "%d번 상품이 주문 %s하게 변경되었습니다.",
+                id,
+                reqBody.orderable() ? "가능" : "불가능"
+        );
+
+        return new RsData<>(
+                200,
+                message,
+                new ProductWithOrderable(product.isOrderable())
+        );
+
+
+    }
 
 }
