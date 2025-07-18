@@ -33,15 +33,6 @@ public class ProductControllerTest {
     @Autowired
     private ProductService productService;
 
-//    @BeforeEach
-//        //테스트용 초기 데이터 삽입
-//    void setUp() {
-//        if (productService.count() == 0) {
-//            productService.create("1", 100, "1", "1", "1", true);
-//            productService.create("2", 200, "2", "2", "2", true);
-//            productService.create("3", 300, "3", "3", "3", true);
-//        }
-//    }
 
     private void checkProduct(ResultActions resultActions, Product product) throws Exception {
         resultActions
