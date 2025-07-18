@@ -81,5 +81,13 @@ public class TestInitData {
                         new OrderItemParam(2L, 1)
                 )
         );
+        orderService.createOrder(
+                user1,
+                "서울시 송파구",
+                List.of(
+                        new OrderItemParam(3L, 1),
+                        new OrderItemParam(1L, 4)
+                )
+        );
     }
 }
