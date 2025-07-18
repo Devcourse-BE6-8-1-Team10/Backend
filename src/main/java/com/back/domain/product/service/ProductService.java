@@ -27,6 +27,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     @Value("${custom.gcp.bucket}")
     private String bucketName;
+    private String defaultImageLabel = "product_name";
 
     //google 저장소 객체생성
     private Storage getStorage() throws IOException {
@@ -54,7 +55,7 @@ public class ProductService {
 
     //수정시 이미지 업로드
     public String imageUpload(MultipartFile file, long id) throws IOException {
-        String fileName = id + file.getOriginalFilename();
+        String fileName = id + defaultImageLabel;
         return uploadFileToGCS(file, fileName);
     }
 
@@ -74,7 +75,7 @@ public class ProductService {
         if (file == null || file.isEmpty() || file.getSize() < 100) {
             return product;
         }
-        String fileName = product.getId() + file.getOriginalFilename();
+        String fileName = product.getId() + defaultImageLabel;
         String imageUrl = uploadFileToGCS(file, fileName);
 
         product.setImageUrl(imageUrl);
