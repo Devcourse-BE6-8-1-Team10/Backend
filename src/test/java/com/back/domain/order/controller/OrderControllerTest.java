@@ -20,9 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OrderControllerTest {
 
@@ -33,7 +33,6 @@ public class OrderControllerTest {
 
     private static Long savedOrderId;
 
-    private static Long orderIdForTest11;
 
     private ResultActions performWithPrint(MockHttpServletRequestBuilder builder) throws Exception {
         return mvc.perform(builder).andDo(print());
@@ -139,8 +138,66 @@ public class OrderControllerTest {
     @Test
     @WithUserDetails("user1@gmail.com")
     @Order(6)
-    @DisplayName("6. 주문 취소 - 권한 있음")
+    @DisplayName("6. 배송지 변경 성공")
     void t6() throws Exception {
+        performWithPrint(put("/api/orders/{orderId}/address", savedOrderId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("newAddress", "서울역"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("%s번 주문 주소가 변경되었습니다.".formatted(savedOrderId)));
+    }
+
+    @Test
+    @WithUserDetails("user2@gmail.com")
+    @Order(7)
+    @DisplayName("7. 배송지 변경 실패 - 권한 없음")
+    void t7() throws Exception {
+        performWithPrint(put("/api/orders/{orderId}/address", savedOrderId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("newAddress", "서울역"))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("%s번 주문 주소 변경 권한이 없습니다.".formatted(savedOrderId)));
+    }
+
+    @Test
+    @WithUserDetails("user1@gmail.com")
+    @Order(8)
+    @DisplayName("8. 배송지 변경 실패 - 빈 주소")
+    void t8() throws Exception {
+        performWithPrint(put("/api/orders/{orderId}/address", savedOrderId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("newAddress", ""))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithUserDetails("user1@gmail.com")
+    @Order(9)
+    @DisplayName("9. 배송지 변경 실패 - 주문 없음")
+    void t9() throws Exception {
+        performWithPrint(put("/api/orders/999999/address")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("newAddress", "서울역"))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("해당 주문이 존재하지 않습니다."));
+    }
+
+    @Test
+    @WithUserDetails("user2@gmail.com")
+    @Order(10)
+    @DisplayName("10. 주문 삭제 실패 - 권한 없음")
+    void t10() throws Exception {
+
+        performWithPrint(delete("/api/orders/{orderId}", savedOrderId))
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.message").value( "%s번 주문 삭제 권한이 없습니다.".formatted(savedOrderId)));
+    }
+
+    @Test
+    @WithUserDetails("user1@gmail.com")
+    @Order(11)
+    @DisplayName("11. 주문 취소 - 권한 있음")
+    void t11() throws Exception {
         Assertions.assertNotNull(savedOrderId, "t1에서 주문이 생성되지 않았습니다.");
 
         performWithPrint(delete("/api/orders/{orderId}", savedOrderId)
@@ -153,9 +210,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(7)
-    @DisplayName("7. 주문 취소 후 상세 조회 시 404 확인")
-    void t7() throws Exception {
+    @Order(12)
+    @DisplayName("12. 주문 취소 후 조회 시 404 확인")
+    void t12() throws Exception {
         Assertions.assertNotNull(savedOrderId, "삭제된 주문 ID가 null입니다.");
 
         performWithPrint(get("/api/orders/{orderId}/detail", savedOrderId))
@@ -165,9 +222,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(8)
-    @DisplayName("8. 주문 삭제 실패 - 존재하지 않는 주문")
-    void t8() throws Exception {
+    @Order(13)
+    @DisplayName("13. 주문 삭제 실패 - 존재하지 않는 주문")
+    void t13() throws Exception {
         Long nonExistentOrderId = 999999L;
 
         performWithPrint(delete("/api/orders/{orderId}", nonExistentOrderId)
@@ -178,39 +235,4 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 
-    @Test
-    @WithUserDetails("user1@gmail.com")
-    @Order(10)
-    @DisplayName("9. 삭제 권한 테스트용 주문 생성")
-    void t10() throws Exception {
-        Map<String, Object> request = Map.of(
-                "customerEmail", "user1@gmail.com",
-                "customerAddress", "서울시 강남구",
-                "orderItems", List.of(
-                        Map.of("productId", 1, "count", 1)
-                )
-        );
-
-        String response = performWithPrint(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        orderIdForTest11 = objectMapper.readTree(response).get("data").get("id").asLong();
-    }
-
-    @Test
-    @WithUserDetails("user2@gmail.com")
-    @Order(11)
-    @DisplayName("10. 주문 삭제 실패 - 권한 없음")
-    void t11() throws Exception {
-        Assertions.assertNotNull(orderIdForTest11, "9번 테스트에서 생성된 주문 ID가 없습니다.");
-
-        performWithPrint(delete("/api/orders/{orderId}", orderIdForTest11))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value(orderIdForTest11 + "번 주문 삭제 권한이 없습니다."));
-    }
 }
