@@ -45,14 +45,14 @@ public class OrderControllerTest {
     private ResultActions performWithPrint(MockHttpServletRequestBuilder builder) throws Exception {
         return mvc.perform(builder).andDo(print());
     }
-    @BeforeEach
-    void setUp() {
-        if (!isProductInitialized) {
-            productService.create("아메리카노", 3500, null, "아이스", "아메리카노", true);
-            productService.create("카페라떼", 4000, null, "핫", "라떼", true);
-            isProductInitialized = true;
-        }
-    }
+//    @BeforeEach
+//    void setUp() {
+//        if (!isProductInitialized) {
+//            productService.create("아메리카노", 3500, null, "아이스", "아메리카노", true);
+//            productService.create("카페라떼", 4000, null, "핫", "라떼", true);
+//            isProductInitialized = true;
+//        }
+//    }
 
     @Test
     @WithUserDetails("user1@gmail.com")

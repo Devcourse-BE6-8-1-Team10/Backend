@@ -2,7 +2,6 @@ package com.back.domain.product.controller;
 
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.service.ProductService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +13,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -35,15 +33,15 @@ public class ProductControllerTest {
     @Autowired
     private ProductService productService;
 
-    @BeforeEach
-        //테스트용 초기 데이터 삽입
-    void setUp() {
-        if (productService.count() == 0) {
-            productService.create("1", 100, "1", "1", "1", true);
-            productService.create("2", 200, "2", "2", "2", true);
-            productService.create("3", 300, "3", "3", "3", true);
-        }
-    }
+//    @BeforeEach
+//        //테스트용 초기 데이터 삽입
+//    void setUp() {
+//        if (productService.count() == 0) {
+//            productService.create("1", 100, "1", "1", "1", true);
+//            productService.create("2", 200, "2", "2", "2", true);
+//            productService.create("3", 300, "3", "3", "3", true);
+//        }
+//    }
 
     private void checkProduct(ResultActions resultActions, Product product) throws Exception {
         resultActions
@@ -168,7 +166,7 @@ public class ProductControllerTest {
     @DisplayName("상품 단건 조회 1 - 원하는 {id}")
     void item1() throws Exception {
 
-        long productId = 10;
+        long productId = 1;
 
         ResultActions resultActions = mvc
                 .perform(
@@ -270,7 +268,7 @@ public class ProductControllerTest {
     @DisplayName("상품 수정")
     void modify1() throws Exception {
 
-        long productId = 17;
+        long productId = 1;
         String productName = "수정된 이름";
         int price = 100;
         String imageUrl = "수정된 이미지";
@@ -298,7 +296,7 @@ public class ProductControllerTest {
     @DisplayName("상품 수정2 (값 안넣을때)")
     void modify2() throws Exception {
 
-        long productId = 21;
+        long productId = 1;
         String productName = "";
         int price = 100;
         String imageUrl = "";
@@ -335,7 +333,7 @@ public class ProductControllerTest {
     @DisplayName("상품 삭제")
     void delete1() throws Exception {
 
-        long productId = 25;
+        long productId = 1;
 
         ResultActions resultActions = deleteRequest(productId);
 
