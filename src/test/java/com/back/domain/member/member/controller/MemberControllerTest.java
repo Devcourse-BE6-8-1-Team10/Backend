@@ -344,9 +344,9 @@ class MemberControllerTest {
 
     @Test
     @DisplayName("회원 주문 내역 전체 조회")
-    @WithUserDetails("user1@gmail.com")
+    @WithUserDetails("user2@gmail.com")
     void getMemberOrders() throws Exception {
-        Member member = memberService.findByEmail("user1@gmail.com")
+        Member member = memberService.findByEmail("user2@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
         Order order1 = orderService.createOrder(
