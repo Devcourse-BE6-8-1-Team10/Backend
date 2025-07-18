@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +28,7 @@ public class ProductService {
     @Value("${custom.gcp.bucket}")
     private String bucketName;
 
-    public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
-
-        if (file == null || file.isEmpty()) {
-            return productRepository.save(
-                    Product.builder()
-                            .productName(reqBody.productName())
-                            .price(reqBody.price())
-                            .imageUrl("") // 여기에 넣기
-                            .category(reqBody.category())
-                            .description(reqBody.description())
-                            .orderable(reqBody.orderable())
-                            .build());
-        }
+    public String imageUpload(MultipartFile file) throws IOException {
 
         String keyFileName = "cafeimagestorage-e894a0d38084.json";
         InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
@@ -51,7 +38,7 @@ public class ProductService {
                 .build()
                 .getService();
 
-        String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+        String fileName = file.getOriginalFilename();
 
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
                 .setContentType(file.getContentType())
@@ -62,25 +49,59 @@ public class ProductService {
         // Public URL 만들기
         String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + fileName;
 
-        return productRepository.save(
+        return imageUrl;
+    }
+
+    public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
+
+        // 1. 우선 상품을 imageUrl 없이 저장
+        Product product = productRepository.save(
                 Product.builder()
                         .productName(reqBody.productName())
                         .price(reqBody.price())
-                        .imageUrl(imageUrl) // 여기에 넣기
+                        .imageUrl("") // 나중에 업데이트
                         .category(reqBody.category())
                         .description(reqBody.description())
                         .orderable(reqBody.orderable())
                         .build());
+
+        // 2. 파일이 비어있으면 바로 반환
+        if (file == null || file.isEmpty()) {
+            return product;
+        }
+
+        String keyFileName = "cafeimagestorage-e894a0d38084.json";
+        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
+
+        Storage storage = StorageOptions.newBuilder()
+                .setCredentials(GoogleCredentials.fromStream(keyFile))
+                .build()
+                .getService();
+
+        String fileName = file.getOriginalFilename();
+
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
+                .setContentType(file.getContentType())
+                .build();
+
+        storage.create(blobInfo, file.getInputStream());
+
+        // Public URL 만들기
+        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + product.getId() + fileName;
+
+        product.setImageUrl(imageUrl);
+
+        return productRepository.save(product);
     }
 
 
     public Product create(String productName, int price, String imageUrl,
                           String category, String description, boolean orderable) {
 
-        if(productName==null || productName.trim().isEmpty()){
+        if (productName == null || productName.trim().isEmpty()) {
             throw new IllegalArgumentException("상품명은 필수입니다.");
         }
-        if(price<0) {
+        if (price < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
 
@@ -100,7 +121,7 @@ public class ProductService {
 
     //컨트롤러 에서 유효성 검증함 , 여기서 생략
     public Page<Product> getItems(int page, int pageSize) {
-        PageRequest pageRequest = PageRequest.of(page-1, pageSize);
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
 
         return productRepository.findAll(pageRequest);
     }
@@ -118,6 +139,18 @@ public class ProductService {
     }
 
     @Transactional
+    public void modifyImage(Product product, MultipartFile file) throws IOException {
+
+        if (file != null && !file.isEmpty()) { //새로 파일 업로드하면, 새 url반환
+            String targetUrl = imageUpload(file);
+            product.setImageUrl(targetUrl);
+            return;
+        }
+        //없으면 기존 이미지 유지
+
+    }
+
+    @Transactional
     public void modify(Product product, String productName, int price, String imageUrl,
                        String category, String description, boolean orderable) {
         product.setProductName(productName);
@@ -127,6 +160,7 @@ public class ProductService {
         product.setDescription(description);
         product.setOrderable(orderable);
     }
+
     public void delete(Product product) {
         productRepository.delete(product);
     }
