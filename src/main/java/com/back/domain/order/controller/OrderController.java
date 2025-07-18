@@ -44,7 +44,7 @@ public class OrderController {
     }
 
     @PostMapping
-    @Operation(summary = "주문 생성") // (더미 상품/멤버 사용)
+    @Operation(summary = "주문 생성")
     public RsData<OrderDto> createOrder(@Valid @RequestBody OrderCreateReqBody reqBody) {
         Member actor = rq.getActor();
         List<OrderItemParam> orderItemParams = reqBody.orderItems()
@@ -91,9 +91,9 @@ public class OrderController {
     //주문 취소
     @DeleteMapping("/{orderId}")
     @Operation(summary = "주문 취소")
-    public RsData<Void> deleteOrder(@PathVariable Long orderId) {
+    public RsData<Void> cancelOrder(@PathVariable Long orderId) {
         Member actor = rq.getActor();
-        orderService.delete(orderId, actor);
+        orderService.cancelOrder(orderId, actor);
         return new RsData<>(
                 200,
                 "%d번 주문이 취소되었습니다.".formatted(orderId),
