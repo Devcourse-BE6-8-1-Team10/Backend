@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -181,26 +182,33 @@ public class ProductControllerTest {
 
     private ResultActions writeRequest(String productName, int price, String imageUrl,
                                        String category,String description, boolean orderable ) throws Exception {
-        return mvc
-                .perform(
-                        post("/products")
-                                .content("""
-                                        {
-                                            "productName": "%s",
-                                            "price": %d,
-                                            "imageUrl": "%s",
-                                            "category": "%s",
-                                            "description": "%s",
-                                            "orderable" : true
-                                        }
-                                        """
-                                        .formatted(productName,price,imageUrl,category,description,orderable)
-                                        .stripIndent())
-                                .contentType(
-                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
-                                )
-                )
-                .andDo(print());
+        String json = """
+        {
+            "productName": "%s",
+            "price": %d,
+            "category": "%s",
+            "description": "%s",
+            "orderable": %b
+        }
+        """.formatted(productName, price, category, description, orderable);
+
+        MockMultipartFile data = new MockMultipartFile(
+                "data", "data.json", "application/json", json.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // file은 선택사항 (null 가능)
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "image.png", "image/png", "dummy-image".getBytes()
+        );
+
+
+        return  mvc.
+                perform(
+                    multipart("/products")
+                        .file(data)
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+        ).andDo(print());
     }
 
     @Test
@@ -222,7 +230,7 @@ public class ProductControllerTest {
         resultActions
                 .andExpect(status().isCreated())
                 .andExpect(handler().handlerType(ProductController.class))
-                .andExpect(handler().methodName("create"))
+                .andExpect(handler().methodName("createWithImage"))
                 .andExpect(jsonPath("$.code").value(201))
                 .andExpect(jsonPath("$.message").value("%d번 상품이 생성되었습니다.".formatted(product.getId())));
 
