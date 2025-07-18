@@ -460,7 +460,7 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("getMemberOrderDetail"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("주문 내역이 조회됐습니다."))
+                .andExpect(jsonPath("$.message").value("회원 주문 상세 내역이 조회됐습니다."))
                 .andExpect(jsonPath("$.data.orderId").value(order1.getId()))
                 .andExpect(jsonPath("$.data.orderDate").value(order1.getCreatedDate().toString()))
                 .andExpect(jsonPath("$.data.status").value(order1.getStatus().name()))
@@ -504,12 +504,12 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("getMemberOrderDetail"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("존재하지 않는 주문입니다."));
+                .andExpect(jsonPath("$.message").value("해당 주문이 존재하지 않습니다."));
     }
 
     @Test
     @DisplayName("회원 특정 주문 내역 상세 조회 - 다른 회원의 주문")
-    @WithUserDetails("user2#gmail.com")
+    @WithUserDetails("user2@gmail.com")
     void getMemberOrderDetail_otherMemberOrder() throws Exception {
         //Given
         Member otherMember = memberService.findByEmail("user3@gmail.com")
@@ -536,6 +536,6 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("getMemberOrderDetail"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value(403))
-                .andExpect(jsonPath("$.message").value("다른 회원의 주문은 조회할 수 없습니다."));
+                .andExpect(jsonPath("$.message").value("해당 주문에 대한 권한이 없습니다."));
     }
 }

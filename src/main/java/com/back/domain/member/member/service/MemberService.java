@@ -3,7 +3,10 @@ package com.back.domain.member.member.service;
 import com.back.domain.member.member.dto.MemberUpdateDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.repository.MemberRepository;
+import com.back.domain.order.dto.UserOrderDetailResponseBody;
 import com.back.domain.order.dto.UserOrderResponseBody;
+import com.back.domain.order.entity.Order;
+import com.back.domain.order.service.OrderService;
 import com.back.global.exception.ServiceException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthTokenService authTokenService;
+    private final OrderService orderService;
     private final PasswordEncoder passwordEncoder;
 
     public long count() {
@@ -111,5 +115,15 @@ public class MemberService {
         return member.getOrders().stream()
                 .map(UserOrderResponseBody::new)
                 .toArray(UserOrderResponseBody[]::new);
+    }
+
+
+    public UserOrderDetailResponseBody getMemberOrderDetail(Member member, Long orderId) {
+        Order order = orderService.getOrderEntity(orderId);
+
+        if (!order.getCustomer().getId().equals(member.getId()))
+            throw new ServiceException(403, "해당 주문에 대한 권한이 없습니다.");
+
+        return new UserOrderDetailResponseBody(order);
     }
 }
