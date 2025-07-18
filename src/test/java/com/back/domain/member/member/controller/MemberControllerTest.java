@@ -380,18 +380,18 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.message").value("회원 주문 내역이 조회됐습니다."))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.data[0].orderId").value(order1.getId()))
-                .andExpect(jsonPath("$.data[0].orderDate").value(order1.getCreatedDate().toString()))
-                .andExpect(jsonPath("$.data[0].state").value(order1.getState()))
-                .andExpect(jsonPath("$.data[0].customerAddress").value(order1.getCustomerAddress()))
+                .andExpect(jsonPath("$.data[0].orderId").value(order2.getId()))
+                .andExpect(jsonPath("$.data[0].orderDate").value(order2.getCreatedDate().toString()))
+                .andExpect(jsonPath("$.data[0].state").value(order2.getState()))
+                .andExpect(jsonPath("$.data[0].customerAddress").value(order2.getCustomerAddress()))
                 .andExpect(jsonPath("$.data[0].orderItems").isArray())
-                .andExpect(jsonPath("$.data[0].orderItems.length()").value(2))
-                .andExpect(jsonPath("$.data[1].id").value(order2.getId()))
-                .andExpect(jsonPath("$.data[1].createdDate").value(order2.getCreatedDate().toString()))
-                .andExpect(jsonPath("$.data[1].state").value(order2.getState()))
-                .andExpect(jsonPath("$.data[1].customerAddress").value(order2.getCustomerAddress()))
+                .andExpect(jsonPath("$.data[0].orderItems.length()").value(order2.getOrderItems().size()))
+                .andExpect(jsonPath("$.data[1].orderId").value(order1.getId()))
+                .andExpect(jsonPath("$.data[1].orderDate").value(order1.getCreatedDate().toString()))
+                .andExpect(jsonPath("$.data[1].state").value(order1.getState()))
+                .andExpect(jsonPath("$.data[1].customerAddress").value(order1.getCustomerAddress()))
                 .andExpect(jsonPath("$.data[1].orderItems").isArray())
-                .andExpect(jsonPath("$.data[1].orderItems.length()").value(1));
+                .andExpect(jsonPath("$.data[1].orderItems.length()").value(order1.getOrderItems().size()));
 
         // 주문 아이템 검증
         String json = resultActions.andReturn().getResponse().getContentAsString();
@@ -402,7 +402,7 @@ class MemberControllerTest {
         assertThat(dataArray).hasSize(2); // 주문 2건
 
         // 첫 번째 주문의 주문 아이템들
-        JsonNode orderItems1 = dataArray.get(0).get("orderItems");
+        JsonNode orderItems1 = dataArray.get(1).get("orderItems");
         assertThat(orderItems1).hasSize(2);
         assertThat(orderItems1.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
         assertThat(orderItems1.get(0).get("productId").asLong()).isEqualTo(1L);
@@ -415,7 +415,7 @@ class MemberControllerTest {
         assertThat(orderItems1.get(1).get("price").asText()).isEqualTo("4000");
 
         // 두 번째 주문의 주문 아이템들
-        JsonNode orderItems2 = dataArray.get(1).get("orderItems");
+        JsonNode orderItems2 = dataArray.get(0).get("orderItems");
         assertThat(orderItems2).hasSize(1);
         assertThat(orderItems2.get(0).get("productName").asText()).isEqualTo("카푸치노(Ice)");
         assertThat(orderItems2.get(0).get("productId").asLong()).isEqualTo(3L);
