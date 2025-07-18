@@ -163,12 +163,12 @@ public class OrderControllerTest {
     @Test
     @WithUserDetails("user2@gmail.com")
     @Order(9)
-    @DisplayName("9. 주문 삭제 실패 - 권한 없음")
+    @DisplayName("9. 주문 취소 실패 - 권한 없음")
     void t9() throws Exception {
 
         performWithPrint(delete("/api/orders/{orderId}", savedOrderId))
                 .andExpect(jsonPath("$.code").value(403))
-                .andExpect(jsonPath("$.message").value( "%s번 주문 삭제 권한이 없습니다.".formatted(savedOrderId)));
+                .andExpect(jsonPath("$.message").value( "%s번 주문 취소 권한이 없습니다.".formatted(savedOrderId)));
     }
 
     @Test
@@ -189,19 +189,20 @@ public class OrderControllerTest {
     @Test
     @WithUserDetails("user1@gmail.com")
     @Order(11)
-    @DisplayName("11. 주문 취소 후 조회 시 404 확인")
+    @DisplayName("11. 주문 취소 후 조회 시 CANCEL 상태 확인")
     void t11() throws Exception {
         Assertions.assertNotNull(savedOrderId, "삭제된 주문 ID가 null입니다.");
 
         performWithPrint(get("/api/orders/{orderId}/detail", savedOrderId))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("해당 주문이 존재하지 않습니다."));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.state").value("CANCELED"));
     }
 
     @Test
     @WithUserDetails("user1@gmail.com")
     @Order(12)
-    @DisplayName("12. 주문 삭제 실패 - 존재하지 않는 주문")
+    @DisplayName("12. 주문 취소 실패 - 존재하지 않는 주문")
     void t12() throws Exception {
         Long nonExistentOrderId = 999999L;
 
