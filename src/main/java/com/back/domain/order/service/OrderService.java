@@ -1,8 +1,7 @@
 package com.back.domain.order.service;
 
 import com.back.domain.member.member.entity.Member;
-import com.back.domain.member.member.repository.MemberRepository;
-import com.back.domain.order.controller.OrderController.OrderItemCreateReqBody;
+import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.entity.OrderItem;
 import com.back.domain.order.repository.OrderRepository;
@@ -20,24 +19,21 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final MemberRepository memberRepository;
-    private  final ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
-    public Order createOrder(String customerEmail, String customerAddress, List<OrderItemCreateReqBody> orderItemsReqBodies) {
-        Member member = memberRepository.findByEmail(customerEmail)
-                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+    public Order createOrder(Member actor, String customerAddress, List<OrderItemParam> OrderItemParam) {
 
-        Order order = new Order(member, customerAddress, "ORDERED");
+        Order order = new Order(actor, customerAddress, "ORDERED");
 
-        for (OrderItemCreateReqBody reqBody : orderItemsReqBodies) {
-            Product product = productRepository.findById(reqBody.productId())
+        for (OrderItemParam param : OrderItemParam) {
+            Product product = productRepository.findById(param.productId())
                     .orElseThrow(() -> new ServiceException(404, "존재하지 않는 상품입니다."));
 
             if (!product.isOrderable())
                 throw new ServiceException(400, "주문 불가능한 상품입니다.");
 
-            OrderItem orderItem = new OrderItem(order, product, reqBody.count(), product.getPrice());
+            OrderItem orderItem = new OrderItem(order, product, param.count(), product.getPrice());
             order.addOrderItem(orderItem);
         }
 
