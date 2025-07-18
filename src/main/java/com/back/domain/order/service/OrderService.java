@@ -4,6 +4,7 @@ import com.back.domain.member.member.entity.Member;
 import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.entity.OrderItem;
+import com.back.domain.order.entity.OrderStatus;
 import com.back.domain.order.repository.OrderRepository;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.repository.ProductRepository;
@@ -24,7 +25,7 @@ public class OrderService {
     @Transactional
     public Order createOrder(Member actor, String customerAddress, List<OrderItemParam> OrderItemParam) {
 
-        Order order = new Order(actor, customerAddress, "ORDERED");
+        Order order = new Order(actor, customerAddress);
 
         for (OrderItemParam param : OrderItemParam) {
             Product product = productRepository.findById(param.productId())
@@ -51,7 +52,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void delete(Long orderId, Member actor) {
+    public void cancelOrder(Long orderId, Member actor) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
 
@@ -61,9 +62,14 @@ public class OrderService {
         }
         else if (!customer.getId().equals(actor.getId())) {
             throw new ServiceException(403, "%d번 주문 삭제 권한이 없습니다.".formatted(order.getId()));
+
         }
 
-        orderRepository.delete(order);
+        if (order.isCanceled()) {
+            throw new ServiceException(409, "이미 취소된 주문입니다.");
+        }
+
+        order.changeStatus(OrderStatus.CANCELED);
     }
 
     @Transactional
@@ -73,6 +79,10 @@ public class OrderService {
 
         if (!order.getCustomer().getId().equals(actor.getId())) {
             throw new ServiceException(403, "%d번 주문 주소 변경 권한이 없습니다.".formatted(order.getId()));
+        }
+
+        if (order.isCanceled()) {
+            throw new ServiceException(409, "이미 취소된 주문입니다.");
         }
 
         order.changeCustomerAddress(newAddress);

@@ -41,16 +41,18 @@ public class Order {
 
     private String customerAddress;
 
-    private String state;
+    @Enumerated(EnumType.STRING) // Enum을 String으로 저장
+    @Column(name = "state")
+    private OrderStatus status;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public Order(Member customer, String customerAddress, String state) {
+    public Order(Member customer, String customerAddress) {
         this.customer = customer;
         this.customerAddress = customerAddress;
-        this.state = state;
+        this.status = OrderStatus.ORDERED;
         this.orderItems = new ArrayList<>();
     }
 
@@ -62,4 +64,21 @@ public class Order {
     public void changeCustomerAddress(String customerAddress) {
         this.customerAddress = customerAddress;
     }
+
+    public void changeStatus(OrderStatus newState) {
+        this.status = newState;
+    }
+
+    public void cancel() {
+        if (this.status == OrderStatus.COMPLETED || this.status == OrderStatus.CANCELED) {
+            throw new IllegalStateException("이미 처리된 주문은 취소할 수 없습니다.");
+        }
+        this.status = OrderStatus.CANCELED;
+    }
+    public boolean isCanceled() {
+        return this.status == OrderStatus.CANCELED;
+    }
 }
+
+
+
