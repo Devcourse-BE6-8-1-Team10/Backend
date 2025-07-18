@@ -66,6 +66,7 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    @Transactional
     public void updateOrderAddress(Long orderId, String newAddress, Member actor) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
