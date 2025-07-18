@@ -407,12 +407,12 @@ class MemberControllerTest {
         assertThat(orderItems1.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
         assertThat(orderItems1.get(0).get("productId").asLong()).isEqualTo(1L);
         assertThat(orderItems1.get(0).get("count").asInt()).isEqualTo(2);
-        assertThat(orderItems1.get(0).get("price").asText()).isEqualTo("3500");
+        assertThat(orderItems1.get(0).get("price").asInt()).isEqualTo(3500);
 
         assertThat(orderItems1.get(1).get("productName").asText()).isEqualTo("카페라떼(Hot)");
         assertThat(orderItems1.get(1).get("productId").asLong()).isEqualTo(2L);
         assertThat(orderItems1.get(1).get("count").asInt()).isEqualTo(1);
-        assertThat(orderItems1.get(1).get("price").asText()).isEqualTo("4000");
+        assertThat(orderItems1.get(1).get("price").asInt()).isEqualTo(4000);
 
         // 두 번째 주문의 주문 아이템들
         JsonNode orderItems2 = dataArray.get(0).get("orderItems");
@@ -420,6 +420,6 @@ class MemberControllerTest {
         assertThat(orderItems2.get(0).get("productName").asText()).isEqualTo("카푸치노(Ice)");
         assertThat(orderItems2.get(0).get("productId").asLong()).isEqualTo(3L);
         assertThat(orderItems2.get(0).get("count").asInt()).isEqualTo(1);
-        assertThat(orderItems2.get(0).get("price").asText()).isEqualTo("4500");
+        assertThat(orderItems2.get(0).get("price").asInt()).isEqualTo(4500);
     }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private  final ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public Order createOrder(Member actor, String customerAddress, List<OrderItemParam> OrderItemParam) {
@@ -55,7 +55,11 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
 
-        if (!order.getCustomer().getId().equals(actor.getId())) {
+        Member customer = order.getCustomer();
+        if (customer == null) {
+            throw new ServiceException(400, "주문에 고객 정보가 없습니다.");
+        }
+        else if (!customer.getId().equals(actor.getId())) {
             throw new ServiceException(403, "%d번 주문 삭제 권한이 없습니다.".formatted(order.getId()));
         }
 

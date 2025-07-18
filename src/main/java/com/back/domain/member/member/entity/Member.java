@@ -50,7 +50,9 @@ public class Member {
 
     @OneToMany(
         mappedBy = "customer",
-        fetch = FetchType.LAZY
+        fetch = FetchType.LAZY,
+        cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+        orphanRemoval = true
     )
     @OrderBy("createdDate DESC") // 주문은 최신순으로 정렬
     private final List<Order> orders = new ArrayList<>();
