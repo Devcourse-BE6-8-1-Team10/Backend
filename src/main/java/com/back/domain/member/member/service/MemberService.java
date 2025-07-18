@@ -41,7 +41,12 @@ public class MemberService {
 
         password = passwordEncoder.encode(password);
 
-        Member member = new Member(email, password, name);
+        Member member = Member.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .isAdmin(false) // 일반 사용자로 가입
+                .build();
         return memberRepository.save(member);
     }
 
@@ -55,7 +60,12 @@ public class MemberService {
 
         password = passwordEncoder.encode(password);
 
-        Member member = new Member(email, password, name, true);
+        Member member = Member.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .isAdmin(true) // 일반 사용자로 가입
+                .build();
         return memberRepository.save(member);
     }
 

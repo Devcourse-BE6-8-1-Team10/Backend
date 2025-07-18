@@ -48,8 +48,10 @@ public class Member {
     private List<Address> addresses = new ArrayList<>();
 
 
-    // ------------ [생성자] ------------
-    public Member(String email, String password, String name) {
+    // ------------ [생성자 + 빌더] ------------
+
+    @Builder
+    public Member(Long id, String email, String password, String name, Boolean isAdmin, String apiKey) {
         if (email == null || email.trim().isEmpty())
             throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
         if (password == null || password.trim().isEmpty())
@@ -57,40 +59,12 @@ public class Member {
         if (name == null || name.trim().isEmpty())
             throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
 
+        this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
-        this.apiKey = UUID.randomUUID().toString();
-        this.isAdmin = false;
-    }
-
-    public Member(String email, String password, String name, boolean isAdmin) {
-        this(email, password, name);
-        this.isAdmin = isAdmin;
-    }
-
-    // new 로 생성하는 경우.
-    public Member(Long id, String email, String name){
-        if (email == null || email.trim().isEmpty())
-            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
-        if (name == null || name.trim().isEmpty())
-            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
-
-        this.id = (long) id;
-        this.email = email;
-        this.name = name;
-    }
-
-    public Member(Long id, String email, String name, boolean isAdmin) {
-        if (email == null || email.trim().isEmpty())
-            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
-        if (name == null || name.trim().isEmpty())
-            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
-
-        this.id = (long) id;
-        this.email = email;
-        this.name = name;
-        this.isAdmin = isAdmin;
+        this.apiKey = (apiKey != null) ? apiKey : UUID.randomUUID().toString();
+        this.isAdmin = (isAdmin != null) ? isAdmin : false;
     }
 
     // ------------ [메서드] ------------

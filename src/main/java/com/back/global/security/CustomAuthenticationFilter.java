@@ -126,7 +126,13 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 if (id != null && email != null && name != null) {
-                    member = new Member(id, email, name, isAdmin);
+                    member = Member.builder()
+                            .id(id)
+                            .email(email)
+                            .name(name)
+                            .password("N/A") // 비밀번호는 필요없음
+                            .isAdmin(isAdmin)
+                            .build();
                     isAccessTokenValid = true;
                 }
             }
