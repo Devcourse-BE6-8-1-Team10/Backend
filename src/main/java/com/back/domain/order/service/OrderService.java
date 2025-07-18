@@ -65,4 +65,17 @@ public class OrderService {
 
         orderRepository.delete(order);
     }
+
+    @Transactional
+    public void updateOrderAddress(Long orderId, String newAddress, Member actor) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
+
+        if (!order.getCustomer().getId().equals(actor.getId())) {
+            throw new ServiceException(403, "%d번 주문 주소 변경 권한이 없습니다.".formatted(order.getId()));
+        }
+
+        order.changeCustomerAddress(newAddress);
+        orderRepository.save(order);
+    }
 }

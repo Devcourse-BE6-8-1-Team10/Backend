@@ -41,4 +41,8 @@ public class Order extends BaseEntityWithTime {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
     }
+
+    public void changeCustomerAddress(String customerAddress) {
+        this.customerAddress = customerAddress;
+    }
 }
