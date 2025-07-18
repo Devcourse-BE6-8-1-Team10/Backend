@@ -3,8 +3,11 @@ package com.back.domain.member.member.controller;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.domain.order.dto.OrderItemParam;
+import com.back.domain.order.entity.Order;
 import com.back.domain.order.service.OrderService;
 import com.back.global.exception.ServiceException;
+import com.back.standard.util.Ut;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -340,13 +343,13 @@ class MemberControllerTest {
     }
 
     @Test
-    @DisplayName("회원 주문 내역 전체 조회")
+    @DisplayName("회원 주문 내역 전체 조회 (요약)")
     @WithUserDetails("user1@gmail.com")
     void getMemberOrders() throws Exception {
         Member member = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
-        orderService.createOrder(
+        Order order1 = orderService.createOrder(
                 member,
                 "서울시 강남구 테헤란로 123",
                 List.of(
@@ -355,7 +358,7 @@ class MemberControllerTest {
                 )
         );
 
-        orderService.createOrder(
+        Order order2 = orderService.createOrder(
                 member,
                 "서울시 강남구 역삼로 456",
                 List.of(
@@ -377,31 +380,45 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.message").value("회원 주문 내역이 조회됐습니다."))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].id").value(order1.getId()))
                 .andExpect(jsonPath("$.data[0].customerEmail").value(member.getEmail()))
+                .andExpect(jsonPath("$.data[0].createdDate").value(order1.getCreatedDate().toString()))
+                .andExpect(jsonPath("$.data[0].state").value(order1.getState()))
+                .andExpect(jsonPath("$.data[0].customerAddress").value(order1.getCustomerAddress()))
                 .andExpect(jsonPath("$.data[0].orderItems").isArray())
                 .andExpect(jsonPath("$.data[0].orderItems.length()").value(2))
+                .andExpect(jsonPath("$.data[1].id").value(order2.getId()))
                 .andExpect(jsonPath("$.data[1].customerEmail").value(member.getEmail()))
+                .andExpect(jsonPath("$.data[1].createdDate").value(order2.getCreatedDate().toString()))
+                .andExpect(jsonPath("$.data[1].state").value(order2.getState()))
+                .andExpect(jsonPath("$.data[1].customerAddress").value(order2.getCustomerAddress()))
                 .andExpect(jsonPath("$.data[1].orderItems").isArray())
                 .andExpect(jsonPath("$.data[1].orderItems.length()").value(1));
 
-        // 추가로 주문 상세 정보 검증
-        List<?> orders = resultActions.andReturn().getResponse().getContentAsString()
-                .lines()
-                .filter(line -> line.contains("customerEmail"))
-                .toList();
-        assertThat(orders).hasSize(2);
-        assertThat(orders.get(0).toString()).contains("서울시 강남구 테헤란로 123");
-        assertThat(orders.get(1).toString()).contains("서울시 강남구 역삼로 456");
-
         // 주문 아이템 검증
-        List<?> orderItems = resultActions.andReturn().getResponse().getContentAsString()
-                .lines()
-                .filter(line -> line.contains("orderItems"))
-                .toList();
-        assertThat(orderItems).hasSize(3); // 총 3개의 주문 아이템이 있어야 함
-        assertThat(orderItems.get(0).toString()).contains("productId=1, count=2");
-        assertThat(orderItems.get(1).toString()).contains("productId=2, count=1");
-        assertThat(orderItems.get(2).toString()).contains("productId=3, count=1");
-    }
+        String json = resultActions.andReturn().getResponse().getContentAsString();
 
+        JsonNode root = Ut.json.objectMapper.readTree(json);
+        JsonNode dataArray = root.get("data");
+
+        assertThat(dataArray).hasSize(2); // 주문 2건
+
+        // 첫 번째 주문의 주문 아이템들
+        JsonNode orderItems1 = dataArray.get(0).get("orderItems");
+        assertThat(orderItems1).hasSize(2);
+        assertThat(orderItems1.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
+        assertThat(orderItems1.get(0).get("productId").asLong()).isEqualTo(1L);
+        assertThat(orderItems1.get(0).get("count").asInt()).isEqualTo(2);
+
+        assertThat(orderItems1.get(1).get("productName").asText()).isEqualTo("카페라떼(Hot)");
+        assertThat(orderItems1.get(1).get("productId").asLong()).isEqualTo(2L);
+        assertThat(orderItems1.get(1).get("count").asInt()).isEqualTo(1);
+
+        // 두 번째 주문의 주문 아이템들
+        JsonNode orderItems2 = dataArray.get(1).get("orderItems");
+        assertThat(orderItems2).hasSize(1);
+        assertThat(orderItems2.get(0).get("productName").asText()).isEqualTo("카푸치노(Ice)");
+        assertThat(orderItems2.get(0).get("productId").asLong()).isEqualTo(3L);
+        assertThat(orderItems2.get(0).get("count").asInt()).isEqualTo(1);
+    }
 }
