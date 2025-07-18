@@ -179,7 +179,7 @@ public class MemberController {
     }
 
     @GetMapping("/orders")
-    @Operation(summary = "회원 주문 내역 전체 조회")
+    @Operation(summary = "회원의 주문 내역 전체 조회")
     public RsData<UserOrderResponseBody[]> getMemberOrders() {
         Member actor = rq.getActor();
         Member member = memberService.findById(actor.getId())
@@ -193,6 +193,10 @@ public class MemberController {
                 resBody
         );
     }
+
+    @GetMapping("/orders/{orderId}")
+    @Operation(summary = "회원의 특정 주문 내역 상세 조회")
+
 
 
 
