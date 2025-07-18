@@ -1,13 +1,14 @@
 package com.back.domain.order.entity;
 
 import com.back.domain.member.member.entity.Member;
-import com.back.global.entity.BaseEntityWithTime;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,23 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @SuperBuilder
-public class Order extends BaseEntityWithTime {
+@EntityListeners(AuditingEntityListener.class)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @CreatedDate
+    @Setter(AccessLevel.PRIVATE)
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Setter(AccessLevel.PRIVATE)
+    private LocalDateTime modifiedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_email", referencedColumnName = "email")
