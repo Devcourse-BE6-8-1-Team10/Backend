@@ -97,13 +97,38 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             Map<String, Object> payload = memberService.payload(accessToken);
 
             if (payload != null) {
-                Long id = (Long) payload.get("id");
-                String email = (String) payload.get("email");
-                String name = (String) payload.get("name");
-                boolean isAdmin = Boolean.TRUE.equals(payload.get("isAdmin"));
-                member = new Member(id, email, name, isAdmin);
+                Object idObj = payload.get("id");
+                Object emailObj = payload.get("email");
+                Object nameObj = payload.get("name");
+                Object isAdminObj = payload.get("isAdmin");
 
-                isAccessTokenValid = true;
+                Long id = null;
+                String email = null;
+                String name = null;
+                boolean isAdmin = false;
+
+                if (idObj instanceof Number) {
+                    id = ((Number) idObj).longValue();
+                }
+
+                if (emailObj instanceof String) {
+                    email = (String) emailObj;
+                }
+
+                if (nameObj instanceof String) {
+                    name = (String) nameObj;
+                }
+
+                if (isAdminObj instanceof Boolean) {
+                    isAdmin = (Boolean) isAdminObj;
+                } else if (isAdminObj instanceof String) {
+                    isAdmin = Boolean.parseBoolean((String) isAdminObj);
+                }
+
+                if (id != null && email != null && name != null) {
+                    member = new Member(id, email, name, isAdmin);
+                    isAccessTokenValid = true;
+                }
             }
         }
 
