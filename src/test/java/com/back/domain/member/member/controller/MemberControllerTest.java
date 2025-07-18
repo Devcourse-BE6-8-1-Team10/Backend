@@ -2,6 +2,8 @@ package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.domain.order.dto.OrderItemCreateReqBody;
+import com.back.domain.order.service.OrderService;
 import com.back.global.exception.ServiceException;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -29,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MemberControllerTest {
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private OrderService orderService;
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -306,7 +312,6 @@ class MemberControllerTest {
         assertThat(passwordEncoder.matches("newPassword", member.getPassword())).isTrue();
     }
 
-    // 잘못된 입력
     @Test
     @DisplayName("회원 정보 수정 - 잘못된 입력")
     @WithUserDetails("user1@gmail.com")
@@ -334,7 +339,69 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.message").value("email-NotBlank-must not be blank"));
     }
 
+    @Test
+    @DisplayName("회원 주문 내역 전체 조회")
+    @WithUserDetails("user1@gmail.com")
+    void getMemberOrders() throws Exception {
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
+        orderService.createOrder(
+                member.getEmail(),
+                "서울시 강남구 테헤란로 123",
+                List.of(
+                        new OrderItemCreateReqBody(1L, 2),
+                        new OrderItemCreateReqBody(2L, 1)
+                )
+        );
 
+        orderService.createOrder(
+                member.getEmail(),
+                "서울시 강남구 역삼로 456",
+                List.of(
+                        new OrderItemCreateReqBody(3L, 1)
+                )
+        );
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/members/orders")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMemberOrders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("회원 주문 내역이 조회됐습니다."))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].customerEmail").value(member.getEmail()))
+                .andExpect(jsonPath("$.data[0].orderItems").isArray())
+                .andExpect(jsonPath("$.data[0].orderItems.length()").value(2))
+                .andExpect(jsonPath("$.data[1].customerEmail").value(member.getEmail()))
+                .andExpect(jsonPath("$.data[1].orderItems").isArray())
+                .andExpect(jsonPath("$.data[1].orderItems.length()").value(1));
+
+        // 추가로 주문 상세 정보 검증
+        List<?> orders = resultActions.andReturn().getResponse().getContentAsString()
+                .lines()
+                .filter(line -> line.contains("customerEmail"))
+                .toList();
+        assertThat(orders).hasSize(2);
+        assertThat(orders.get(0).toString()).contains("서울시 강남구 테헤란로 123");
+        assertThat(orders.get(1).toString()).contains("서울시 강남구 역삼로 456");
+
+        // 주문 아이템 검증
+        List<?> orderItems = resultActions.andReturn().getResponse().getContentAsString()
+                .lines()
+                .filter(line -> line.contains("orderItems"))
+                .toList();
+        assertThat(orderItems).hasSize(3); // 총 3개의 주문 아이템이 있어야 함
+        assertThat(orderItems.get(0).toString()).contains("productId=1, count=2");
+        assertThat(orderItems.get(1).toString()).contains("productId=2, count=1");
+        assertThat(orderItems.get(2).toString()).contains("productId=3, count=1");
+    }
 
 }
