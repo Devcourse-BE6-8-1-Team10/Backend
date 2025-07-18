@@ -29,7 +29,15 @@ public class Rq {
                 .map(Authentication::getPrincipal)
                 .filter(principal -> principal instanceof SecurityUser)
                 .map(principal -> (SecurityUser) principal)
-                .map(securityUser -> new Member(securityUser.getId(), securityUser.getEmail(), securityUser.getUsername(), securityUser.isAdmin()))
+                .map(securityUser ->
+                    Member.builder()
+                            .id(securityUser.getId())
+                            .email(securityUser.getEmail())
+                            .name(securityUser.getUsername())
+                            .password("N/A") // 비밀번호는 노출하지 않음
+                            .isAdmin(securityUser.isAdmin())
+                            .build()
+                )
                 .orElse(null);
     }
 
