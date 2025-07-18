@@ -67,6 +67,8 @@ public class TestInitData {
         productService.create("카푸치노(Ice)", 4500, null, "아이스 커피", "샷 + 우유 + 거품", true);
     }
 
+    // 주문 데이터 삽입
+    @Transactional
     public void work3() {
         Member user1 = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new RuntimeException("user1 not found"));
