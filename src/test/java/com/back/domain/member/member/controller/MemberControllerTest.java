@@ -343,7 +343,7 @@ class MemberControllerTest {
     }
 
     @Test
-    @DisplayName("회원 주문 내역 전체 조회 (요약)")
+    @DisplayName("회원 주문 내역 전체 조회")
     @WithUserDetails("user1@gmail.com")
     void getMemberOrders() throws Exception {
         Member member = memberService.findByEmail("user1@gmail.com")
@@ -380,15 +380,13 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.message").value("회원 주문 내역이 조회됐습니다."))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.data[0].id").value(order1.getId()))
-                .andExpect(jsonPath("$.data[0].customerEmail").value(member.getEmail()))
-                .andExpect(jsonPath("$.data[0].createdDate").value(order1.getCreatedDate().toString()))
+                .andExpect(jsonPath("$.data[0].orderId").value(order1.getId()))
+                .andExpect(jsonPath("$.data[0].orderDate").value(order1.getCreatedDate().toString()))
                 .andExpect(jsonPath("$.data[0].state").value(order1.getState()))
                 .andExpect(jsonPath("$.data[0].customerAddress").value(order1.getCustomerAddress()))
                 .andExpect(jsonPath("$.data[0].orderItems").isArray())
                 .andExpect(jsonPath("$.data[0].orderItems.length()").value(2))
                 .andExpect(jsonPath("$.data[1].id").value(order2.getId()))
-                .andExpect(jsonPath("$.data[1].customerEmail").value(member.getEmail()))
                 .andExpect(jsonPath("$.data[1].createdDate").value(order2.getCreatedDate().toString()))
                 .andExpect(jsonPath("$.data[1].state").value(order2.getState()))
                 .andExpect(jsonPath("$.data[1].customerAddress").value(order2.getCustomerAddress()))
@@ -409,10 +407,12 @@ class MemberControllerTest {
         assertThat(orderItems1.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
         assertThat(orderItems1.get(0).get("productId").asLong()).isEqualTo(1L);
         assertThat(orderItems1.get(0).get("count").asInt()).isEqualTo(2);
+        assertThat(orderItems1.get(0).get("price").asText()).isEqualTo("3500");
 
         assertThat(orderItems1.get(1).get("productName").asText()).isEqualTo("카페라떼(Hot)");
         assertThat(orderItems1.get(1).get("productId").asLong()).isEqualTo(2L);
         assertThat(orderItems1.get(1).get("count").asInt()).isEqualTo(1);
+        assertThat(orderItems1.get(1).get("price").asText()).isEqualTo("4000");
 
         // 두 번째 주문의 주문 아이템들
         JsonNode orderItems2 = dataArray.get(1).get("orderItems");
@@ -420,5 +420,6 @@ class MemberControllerTest {
         assertThat(orderItems2.get(0).get("productName").asText()).isEqualTo("카푸치노(Ice)");
         assertThat(orderItems2.get(0).get("productId").asLong()).isEqualTo(3L);
         assertThat(orderItems2.get(0).get("count").asInt()).isEqualTo(1);
+        assertThat(orderItems2.get(0).get("price").asText()).isEqualTo("4500");
     }
 }

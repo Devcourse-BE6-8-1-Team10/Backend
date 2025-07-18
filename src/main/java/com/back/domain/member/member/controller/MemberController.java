@@ -179,7 +179,7 @@ public class MemberController {
 
     @GetMapping("/orders")
     @Operation(summary = "회원 주문 내역 전체 조회")
-    public RsData<?> getMemberOrders() {
+    public RsData<> getMemberOrders() {
         Member actor = rq.getActor();
         Member member = memberService.findById(actor.getId())
                 .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
