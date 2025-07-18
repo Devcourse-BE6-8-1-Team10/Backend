@@ -61,7 +61,7 @@ public class OrderService {
             throw new ServiceException(400, "주문에 고객 정보가 없습니다.");
         }
         else if (!customer.getId().equals(actor.getId())) {
-            throw new ServiceException(403, "%d번 주문 삭제 권한이 없습니다.".formatted(order.getId()));
+            throw new ServiceException(403, "%d번 주문 취소 권한이 없습니다.".formatted(order.getId()));
 
         }
 

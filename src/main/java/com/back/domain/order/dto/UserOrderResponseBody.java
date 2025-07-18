@@ -16,7 +16,7 @@ public record UserOrderResponseBody(
         this(
                 order.getId(),
                 order.getCreatedDate().toString(),
-                order.getState(),
+                order.getStatus().name(),
                 order.getCustomerAddress(),
                 order.getOrderItems().stream()
                         .map(UserOrderItemResponseDto::new)
