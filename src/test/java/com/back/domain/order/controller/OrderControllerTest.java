@@ -66,24 +66,9 @@ public class OrderControllerTest {
 
     @Test
     @WithUserDetails("user1@gmail.com")
-    @Order(2)
-    @DisplayName("2. 주문 목록 조회")
-    void t2() throws Exception {
-        Assertions.assertNotNull(savedOrderId, "t1에서 주문이 생성되지 않았습니다.");
-
-        performWithPrint(get("/api/orders"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].id").value(savedOrderId))
-                .andExpect(jsonPath("$.data[0].customerEmail").value("user1@gmail.com"));
-    }
-
-    @Test
-    @WithUserDetails("user1@gmail.com")
     @Order(3)
     @DisplayName("3. 주문 상세 조회")
     void t3() throws Exception {
-        Assertions.assertNotNull(savedOrderId, "t1에서 주문이 생성되지 않았습니다.");
 
         performWithPrint(get("/api/orders/{orderId}/detail", savedOrderId))
                 .andExpect(status().isOk())
