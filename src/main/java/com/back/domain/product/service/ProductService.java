@@ -28,7 +28,7 @@ public class ProductService {
     @Value("${custom.gcp.bucket}")
     private String bucketName;
 
-    public String imageUpload(MultipartFile file) throws IOException {
+    public String imageUpload(MultipartFile file, long id) throws IOException {
 
         String keyFileName = "cafeimagestorage-e894a0d38084.json";
         InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
@@ -38,7 +38,7 @@ public class ProductService {
                 .build()
                 .getService();
 
-        String fileName = file.getOriginalFilename();
+        String fileName = id + file.getOriginalFilename();
 
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
                 .setContentType(file.getContentType())
@@ -86,7 +86,7 @@ public class ProductService {
         storage.create(blobInfo, file.getInputStream());
 
         // Public URL 만들기
-        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" +  fileName;
+        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + fileName;
 
         product.setImageUrl(imageUrl);
 
@@ -140,8 +140,9 @@ public class ProductService {
     @Transactional
     public void modifyImage(Product product, MultipartFile file) throws IOException {
 
+        long id = product.getId();
         if (file != null && !file.isEmpty()) { //새로 파일 업로드하면, 새 url반환
-            String targetUrl = imageUpload(file);
+            String targetUrl = imageUpload(file, id);
             product.setImageUrl(targetUrl);
         }
         //없으면 기존 이미지 유지

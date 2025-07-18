@@ -121,7 +121,7 @@ public class ProductController {
     public RsData<ProductDto> modifywithImage(
             @PathVariable long id,
             @RequestPart("data") @Valid ModifyReqBody reqBody,
-            @RequestPart(value = "imageFile", required = false) MultipartFile file
+            @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException {
 
         Product product = productService.getItem(id).orElseThrow(
@@ -130,6 +130,8 @@ public class ProductController {
 
         //여기서 이미지바꾸는 로직 넣고
         productService.modifyImage(product, file);
+
+        System.out.println("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ"+product.getImageUrl());
 
         //나머지 정보 수정
         productService.modify(product, reqBody.productName(), reqBody.price(), product.getImageUrl(),
