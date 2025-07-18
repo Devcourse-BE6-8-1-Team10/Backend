@@ -1,9 +1,11 @@
 package com.back.domain.order.controller;
 
+import com.back.domain.member.member.entity.Member;
 import com.back.domain.order.dto.OrderDto;
 import com.back.domain.order.dto.OrderDtoWithSpecific;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.service.OrderService;
+import com.back.global.rq.Rq;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +26,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final Rq rq;
 
     public record OrderCreateReqBody(
             @NotBlank @Email String customerEmail,
@@ -77,4 +80,18 @@ public class OrderController {
                 "주문 상세 조회에 성공했습니다.",
                 new OrderDtoWithSpecific(order));
     }
+
+    //주문 취소
+    @DeleteMapping("/{orderId}")
+    @Operation(summary = "주문 취소")
+    public RsData<Void> deleteOrder(@PathVariable Long orderId) {
+        Member actor = rq.getActor();
+        orderService.delete(orderId, actor);
+        return new RsData<>(
+                200,
+                "%d번 주문이 취소되었습니다.".formatted(orderId),
+                null
+        );
+    }
+
 }
