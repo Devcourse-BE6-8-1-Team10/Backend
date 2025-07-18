@@ -2,6 +2,7 @@ package com.back.global.initData;
 
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -22,11 +23,13 @@ public class TestInitData {
     @Lazy
     private TestInitData self;
     private final MemberService memberService;
+    private final ProductService productService;
 
     @Bean
     ApplicationRunner testInitDataApplicationRunner() {
         return args -> {
             self.work1();
+            self.work2();
         };
     }
 
@@ -48,5 +51,13 @@ public class TestInitData {
 
         Member user3 = memberService.join("user3@gmail.com", "1234", "유저3");
         user3.modifyApiKey(user3.getEmail());
+    }
+
+    // 상품 데이터 삽입
+    @Transactional
+    public void work2() {
+        productService.create("아메리카노(Ice)", 3500, null, "아이스 커피", "샷 + 물", true);
+        productService.create("카페라떼(Hot)", 4000, null, "핫 커피", "샷 + 우유", true);
+        productService.create("카푸치노(Ice)", 4500, null, "아이스 커피", "샷 + 우유 + 거품", true);
     }
 }

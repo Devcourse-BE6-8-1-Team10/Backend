@@ -1,7 +1,5 @@
 package com.back.domain.order.controller;
 
-import com.back.domain.member.member.service.MemberService;
-import com.back.domain.product.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,26 +30,13 @@ public class OrderControllerTest {
     private MockMvc mvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private MemberService memberService;
-    @Autowired
-    private ProductService productService;
 
     private static Long savedOrderId;
 
     private static Long orderIdForTest11;
-    private static boolean isProductInitialized = false;
 
     private ResultActions performWithPrint(MockHttpServletRequestBuilder builder) throws Exception {
         return mvc.perform(builder).andDo(print());
-    }
-    @BeforeEach
-    void setUp() {
-        if (!isProductInitialized) {
-            productService.create("아메리카노", 3500, null, "아이스", "아메리카노", true);
-            productService.create("카페라떼", 4000, null, "핫", "라떼", true);
-            isProductInitialized = true;
-        }
     }
 
     @Test
