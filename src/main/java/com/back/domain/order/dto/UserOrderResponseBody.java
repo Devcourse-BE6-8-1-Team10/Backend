@@ -10,7 +10,7 @@ public record UserOrderResponseBody(
         String orderDate,
         String state,
         String customerAddress,
-        OrderItemResponseDto[] orderItems
+        UserOrderItemResponseDto[] orderItems
 ) {
     public UserOrderResponseBody(Order order){
         this(
@@ -19,8 +19,8 @@ public record UserOrderResponseBody(
                 order.getState(),
                 order.getCustomerAddress(),
                 order.getOrderItems().stream()
-                        .map(OrderItemResponseDto::new)
-                        .toArray(OrderItemResponseDto[]::new)
+                        .map(UserOrderItemResponseDto::new)
+                        .toArray(UserOrderItemResponseDto[]::new)
         );
     }
 }
