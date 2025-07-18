@@ -55,20 +55,6 @@ public class OrderController {
         );
     }
 
-    @GetMapping("")
-    @Operation(summary = "주문 목록 조회")
-    public RsData<List<OrderDto>> getOrders() {
-        List<Order> orders = orderService.getAllOrders();
-        List<OrderDto> dtos = orders.stream()
-                .map(OrderDto::new)
-                .toList();
-        return new RsData<>(
-                200,
-                "주문 조회에 성공했습니다.",
-                dtos
-        );
-    }
-
     // 주문 상세 조회
     @GetMapping("/{orderId}/detail")
     @Operation(summary = "주문 상세 조회")

@@ -2,6 +2,8 @@ package com.back.global.initData;
 
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.domain.order.dto.OrderItemParam;
+import com.back.domain.order.service.OrderService;
 import com.back.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 테스트 환경의 초기 데이터 설정
@@ -24,12 +28,14 @@ public class TestInitData {
     private TestInitData self;
     private final MemberService memberService;
     private final ProductService productService;
+    private final OrderService orderService;
 
     @Bean
     ApplicationRunner testInitDataApplicationRunner() {
         return args -> {
             self.work1();
             self.work2();
+            self.work3();
         };
     }
 
@@ -59,5 +65,29 @@ public class TestInitData {
         productService.create("아메리카노(Ice)", 3500, null, "아이스 커피", "샷 + 물", true);
         productService.create("카페라떼(Hot)", 4000, null, "핫 커피", "샷 + 우유", true);
         productService.create("카푸치노(Ice)", 4500, null, "아이스 커피", "샷 + 우유 + 거품", true);
+    }
+
+    // 주문 데이터 삽입
+    @Transactional
+    public void work3() {
+        Member user1 = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new RuntimeException("user1 not found"));
+
+        orderService.createOrder(
+                user1,
+                "서울시 강남구 테헤란로 123",
+                List.of(
+                        new OrderItemParam(1L, 2),
+                        new OrderItemParam(2L, 1)
+                )
+        );
+        orderService.createOrder(
+                user1,
+                "서울시 송파구",
+                List.of(
+                        new OrderItemParam(3L, 1),
+                        new OrderItemParam(1L, 4)
+                )
+        );
     }
 }
