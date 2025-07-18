@@ -422,80 +422,120 @@ class MemberControllerTest {
         assertThat(orderItems2.get(0).get("count").asInt()).isEqualTo(1);
         assertThat(orderItems2.get(0).get("price").asInt()).isEqualTo(4500);
     }
-//
-//    @Test
-//    @DisplayName("회원 특정 주문 내역 상세 조회")
-//    @WithUserDetails("user2@gmail.com")
-//    void getMemberOrderDetail() throws Exception {
-//        //Given
-//        Member member = memberService.findByEmail("user2@gmail.com")
-//                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
-//
-//        Order order1 = orderService.createOrder(
-//                member,
-//                "서울시 강남구 테헤란로 123",
-//                List.of(
-//                        new OrderItemParam(1L, 2), // 아메리카노(Ice)
-//                        new OrderItemParam(2L, 1) // 카페라떼(Hot)
-//                )
-//        );
-//
-//        Order order2 = orderService.createOrder(
-//                member,
-//                "서울시 강남구 역삼로 456",
-//                List.of(
-//                        new OrderItemParam(3L, 1) // 카푸치노(Ice)
-//                )
-//        );
-//
-//        //When
-//        ResultActions resultActions = mvc
-//                .perform(
-//                        get("/api/members/orders/{orderId}", order1.getId())
-//                )
-//                .andDo(print());
-//
-//        resultActions
-//                .andExpect(handler().handlerType(MemberController.class))
-//                .andExpect(handler().methodName("getMemberOrders"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.code").value(200))
-//                .andExpect(jsonPath("$.message").value("회원 주문 내역이 조회됐습니다."))
-//                .andExpect(jsonPath("$.data.orderId").value(order2.getId()))
-//                .andExpect(jsonPath("$.data.orderDate").value(order2.getCreatedDate().toString()))
-//                .andExpect(jsonPath("$.data.status").value(order2.getStatus().name()))
-//                .andExpect(jsonPath("$.data.customerAddress").value(order2.getCustomerAddress()))
-//                .andExpect(jsonPath("$.data.orderItems").isArray())
-//                .andExpect(jsonPath("$.data.orderItems.length()").value(order2.getOrderItems().size()))
-//
-//        // 주문 아이템 검증
-//        String json = resultActions.andReturn().getResponse().getContentAsString();
-//
-//        JsonNode root = Ut.json.objectMapper.readTree(json);
-//        JsonNode dataArray = root.get("data");
-//
-//        assertThat(dataArray).hasSize(2); // 주문 2건
-//
-//        // 첫 번째 주문의 주문 아이템들
-//        JsonNode orderItems1 = dataArray.get(1).get("orderItems");
-//        assertThat(orderItems1).hasSize(order1.getOrderItems().size());
-//        assertThat(orderItems1.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
-//        assertThat(orderItems1.get(0).get("productId").asLong()).isEqualTo(1L);
-//        assertThat(orderItems1.get(0).get("count").asInt()).isEqualTo(2);
-//        assertThat(orderItems1.get(0).get("price").asInt()).isEqualTo(3500);
-//
-//        assertThat(orderItems1.get(1).get("productName").asText()).isEqualTo("카페라떼(Hot)");
-//        assertThat(orderItems1.get(1).get("productId").asLong()).isEqualTo(2L);
-//        assertThat(orderItems1.get(1).get("count").asInt()).isEqualTo(1);
-//        assertThat(orderItems1.get(1).get("price").asInt()).isEqualTo(4000);
-//
-//        // 두 번째 주문의 주문 아이템들
-//        JsonNode orderItems2 = dataArray.get(0).get("orderItems");
-//        assertThat(orderItems2).hasSize(order2.getOrderItems().size());
-//        assertThat(orderItems2.get(0).get("productName").asText()).isEqualTo("카푸치노(Ice)");
-//        assertThat(orderItems2.get(0).get("productId").asLong()).isEqualTo(3L);
-//        assertThat(orderItems2.get(0).get("count").asInt()).isEqualTo(1);
-//        assertThat(orderItems2.get(0).get("price").asInt()).isEqualTo(4500);
-//    }
 
+    @Test
+    @DisplayName("회원 특정 주문 내역 상세 조회")
+    @WithUserDetails("user2@gmail.com")
+    void getMemberOrderDetail() throws Exception {
+        //Given
+        Member member = memberService.findByEmail("user2@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+
+        Order order1 = orderService.createOrder(
+                member,
+                "서울시 강남구 테헤란로 123",
+                List.of(
+                        new OrderItemParam(1L, 2), // 아메리카노(Ice)
+                        new OrderItemParam(2L, 1) // 카페라떼(Hot)
+                )
+        );
+
+        Order order2 = orderService.createOrder(
+                member,
+                "서울시 강남구 역삼로 456",
+                List.of(
+                        new OrderItemParam(3L, 1) // 카푸치노(Ice)
+                )
+        );
+
+        //When
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/members/orders/{orderId}", order1.getId())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMemberOrderDetail"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주문 내역이 조회됐습니다."))
+                .andExpect(jsonPath("$.data.orderId").value(order1.getId()))
+                .andExpect(jsonPath("$.data.orderDate").value(order1.getCreatedDate().toString()))
+                .andExpect(jsonPath("$.data.status").value(order1.getStatus().name()))
+                .andExpect(jsonPath("$.data.customerAddress").value(order1.getCustomerAddress()))
+                .andExpect(jsonPath("$.data.orderItems").isArray())
+                .andExpect(jsonPath("$.data.orderItems.length()").value(order1.getOrderItems().size()));
+
+        // 주문 아이템 검증
+        String json = resultActions.andReturn().getResponse().getContentAsString();
+        JsonNode root = Ut.json.objectMapper.readTree(json);
+        JsonNode orderItems = root.get("data").get("orderItems");
+
+        assertThat(orderItems).hasSize(order1.getOrderItems().size());
+        assertThat(orderItems.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
+        assertThat(orderItems.get(0).get("productId").asLong()).isEqualTo(1L);
+        assertThat(orderItems.get(0).get("count").asInt()).isEqualTo(2);
+        assertThat(orderItems.get(0).get("price").asInt()).isEqualTo(3500);
+        assertThat(orderItems.get(1).get("productName").asText()).isEqualTo("카페라떼(Hot)");
+        assertThat(orderItems.get(1).get("productId").asLong()).isEqualTo(2L);
+        assertThat(orderItems.get(1).get("count").asInt()).isEqualTo(1);
+        assertThat(orderItems.get(1).get("price").asInt()).isEqualTo(4000);
+    }
+
+    @Test
+    @DisplayName("회원 특정 주문 내역 상세 조회 - 존재하지 않는 주문")
+    @WithUserDetails("user2@gmail.com")
+    void getMemberOrderDetail_notFound() throws Exception {
+        //Given
+        Long nonExistentOrderId = 999L;
+
+        //When
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/members/orders/{orderId}", nonExistentOrderId)
+                )
+                .andDo(print());
+
+        //Then
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMemberOrderDetail"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 주문입니다."));
+    }
+
+    @Test
+    @DisplayName("회원 특정 주문 내역 상세 조회 - 다른 회원의 주문")
+    @WithUserDetails("user2#gmail.com")
+    void getMemberOrderDetail_otherMemberOrder() throws Exception {
+        //Given
+        Member otherMember = memberService.findByEmail("user3@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Order otherMembersOrder = orderService.createOrder(
+                otherMember,
+                "서울시 강남구 테헤란로 123",
+                List.of(
+                        new OrderItemParam(1L, 2), // 아메리카노(Ice)
+                        new OrderItemParam(2L, 1) // 카페라떼(Hot)
+                )
+        );
+
+        //When
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/members/orders/{orderId}", otherMembersOrder.getId())
+                )
+                .andDo(print());
+
+        //Then
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMemberOrderDetail"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.message").value("다른 회원의 주문은 조회할 수 없습니다."));
+    }
 }
