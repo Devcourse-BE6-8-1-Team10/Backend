@@ -1,6 +1,7 @@
 package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.dto.MemberDto;
+import com.back.domain.member.member.dto.MemberUpdateDto;
 import com.back.domain.member.member.dto.MemberWithAuthDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
@@ -124,9 +125,9 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴")
     @Transactional
     public RsData<Void> withdraw() {
-        Member member = rq.getActor();
-
-        log.debug("탈퇴 요청한 회원: {}", member.isAdmin());
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
 
         memberService.withdraw(member);
 
@@ -137,6 +138,42 @@ public class MemberController {
                 200,
                 "회원 탈퇴가 완료되었습니다.",
                 null
+        );
+    }
+
+    @GetMapping("/info")
+    @Operation(summary = "회원 정보 조회")
+    @Transactional(readOnly = true)
+    public RsData<MemberWithAuthDto> getMemberInfo() {
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+
+        return new RsData<>(
+                200,
+                "회원 정보가 조회됐습니다.",
+                new MemberWithAuthDto(member)
+        );
+    }
+
+
+
+
+    @PutMapping("/info")
+    @Operation(summary = "회원 정보 수정")
+    public RsData<MemberWithAuthDto> updateMemberInfo(
+            @Valid @RequestBody MemberUpdateDto reqBody
+    ) {
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+
+        memberService.modify(reqBody, member);
+
+        return new RsData<>(
+                200,
+                "회원 정보가 수정됐습니다.",
+                new MemberWithAuthDto(member)
         );
     }
 

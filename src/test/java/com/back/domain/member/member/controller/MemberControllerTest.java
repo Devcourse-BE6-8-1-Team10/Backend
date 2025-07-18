@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,8 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,6 +31,8 @@ class MemberControllerTest {
     private MemberService memberService;
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("회원 가입")
@@ -194,7 +196,6 @@ class MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/withdraw")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -217,7 +218,6 @@ class MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/withdraw")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -236,7 +236,6 @@ class MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/members/withdraw")
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
@@ -245,4 +244,97 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("로그인 후 이용해주세요."));
     }
+
+    @Test
+    @DisplayName("회원 정보 조회")
+    @WithUserDetails("user1@gmail.com")
+    void getMemberInfo() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/members/info")
+                )
+                .andDo(print());
+
+        Member member = memberService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMemberInfo"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("회원 정보가 조회됐습니다."))
+                .andExpect(jsonPath("$.data.id").value(member.getId()))
+                .andExpect(jsonPath("$.data.email").value(member.getEmail()))
+                .andExpect(jsonPath("$.data.name").value(member.getName()))
+                .andExpect(jsonPath("$.data.isAdmin").value(member.isAdmin()));
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정")
+    @WithUserDetails("user1@gmail.com")
+    void updateMemberInfo() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        put("/api/members/info")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "modifiedUser1@gmail.com",
+                                            "name": "수정된 이름",
+                                            "password": "newPassword"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        Member member = memberService.findByEmail("modifiedUser1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("updateMemberInfo"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("회원 정보가 수정됐습니다."))
+                .andExpect(jsonPath("$.data.id").value(member.getId()))
+                .andExpect(jsonPath("$.data.email").value(member.getEmail()))
+                .andExpect(jsonPath("$.data.name").value(member.getName()))
+                .andExpect(jsonPath("$.data.isAdmin").value(member.isAdmin()));
+
+        assertThat(member.getName()).isEqualTo("수정된 이름");
+        assertThat(passwordEncoder.matches("newPassword", member.getPassword())).isTrue();
+    }
+
+    // 잘못된 입력
+    @Test
+    @DisplayName("회원 정보 수정 - 잘못된 입력")
+    @WithUserDetails("user1@gmail.com")
+    void updateMemberInfo_wrongInput() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        put("/api/members/info")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "",
+                                            "name": "수정된 이름",
+                                            "password": "newPassword"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("updateMemberInfo"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("email-NotBlank-must not be blank"));
+    }
+
+
+
+
 }
