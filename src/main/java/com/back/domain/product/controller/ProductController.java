@@ -27,7 +27,7 @@ import java.io.IOException;
 @Tag(name = "ProductController", description = "상품 API")
 @RequiredArgsConstructor
 @RestController
-//@RequestMapping("/api")
+@RequestMapping("/api")
 public class ProductController {
     private final ProductService productService;
 

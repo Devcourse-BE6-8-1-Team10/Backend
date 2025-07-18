@@ -238,27 +238,38 @@ public class ProductControllerTest {
 
     }
 
-    private ResultActions modifyRequest(long productId, String productName, int price, String imageUrl,
-                                        String category, String description, boolean orderable) throws Exception {
-        return mvc
-                .perform(
-                        put("/products/%d".formatted(productId))
-                                .content("""
-                                        {
-                                            "productName": "%s",
-                                            "price": %d,
-                                            "imageUrl": "%s",
-                                            "category": "%s",
-                                            "description": "%s",
-                                            "orderable" : true
-                                        }
-                                        """
-                                        .formatted(productName, price, imageUrl, category, description, orderable)
-                                        .stripIndent())
-                                .contentType(
-                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
-                                )
+    private ResultActions modifyRequest(long productId,
+                                        String productName,
+                                        int price,
+                                        String category,
+                                        String description,
+                                        boolean orderable,
+                                        MockMultipartFile imageFile) throws Exception {
+        // JSON 문자열 생성
+        String jsonData = """
+        {
+            "productName": "%s",
+            "price": %d,
+            "category": "%s",
+            "description": "%s",
+            "orderable": %b
+        }
+        """.formatted(productName, price, category, description, orderable);
 
+        // JSON을 data 파트로 넣음
+        MockMultipartFile dataPart = new MockMultipartFile(
+                "data", "data.json", "application/json", jsonData.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // file 파트는 이미지를 넣거나 null 가능
+        return mvc.perform(multipart("/products/%d".formatted(productId))
+                        .file(dataPart)
+                        .file(imageFile) // imageFile 이름은 반드시 "file"이어야 함
+                        .with(request -> {
+                            request.setMethod("PUT"); // PUT으로 강제
+                            return request;
+                        })
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andDo(print());
     }
@@ -269,22 +280,24 @@ public class ProductControllerTest {
 
         long productId = 1;
         String productName = "수정된 이름";
-        int price = 100;
-        String imageUrl = "수정된 이미지";
+        int price = 1000;
         String category = "수정된 카테고리";
         String description = "수정된 설명";
         boolean orderable = true;
 
-        ResultActions resultActions = modifyRequest(productId, productName, price, imageUrl,
-                category, description, orderable);
+        MockMultipartFile imageFile = new MockMultipartFile(
+                "file", "new-image.jpg", "image/jpeg", "image-data-here".getBytes()
+        );
+
+        ResultActions resultActions = modifyRequest(productId, productName, price,
+                category, description, orderable, imageFile);
 
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ProductController.class))
-                .andExpect(handler().methodName("modify"))
+                .andExpect(handler().methodName("modifywithImage"))
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("%d번 상품이 수정되었습니다.".formatted(productId)));
-
 
         Product product = productService.getItem(productId).get();
         checkProduct(resultActions, product);
@@ -298,23 +311,25 @@ public class ProductControllerTest {
         long productId = 1;
         String productName = "";
         int price = 100;
-        String imageUrl = "";
         String category = "";
         String description = "";
         boolean orderable = true;
 
-        ResultActions resultActions = modifyRequest(productId, productName, price, imageUrl,
-                category, description, orderable);
+        MockMultipartFile imageFile = new MockMultipartFile(
+                "file", "new-image.jpg", "image/jpeg", "image-data-here".getBytes()
+        );
+
+        ResultActions resultActions = modifyRequest(productId, productName, price,
+                category, description, orderable,imageFile);
 
         resultActions
                 .andExpect(status().isBadRequest())
                 .andExpect(handler().handlerType(ProductController.class))
-                .andExpect(handler().methodName("modify"))
+                .andExpect(handler().methodName("modifywithImage"))
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("""
                         category-NotBlank-must not be blank
                         description-NotBlank-must not be blank
-                        imageUrl-NotBlank-must not be blank
                         productName-NotBlank-must not be blank
                         """.trim().stripIndent())); //ServiceException에서 필드명을 알파벳 순으로 정렬함, 필드명-코드-메세지 형태
 
