@@ -77,7 +77,7 @@ public class ProductService {
                 .build()
                 .getService();
 
-        String fileName = file.getOriginalFilename();
+        String fileName = product.getId() + file.getOriginalFilename();
 
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
                 .setContentType(file.getContentType())
@@ -86,7 +86,7 @@ public class ProductService {
         storage.create(blobInfo, file.getInputStream());
 
         // Public URL 만들기
-        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + product.getId() + fileName;
+        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" +  fileName;
 
         product.setImageUrl(imageUrl);
 
@@ -143,7 +143,6 @@ public class ProductService {
         if (file != null && !file.isEmpty()) { //새로 파일 업로드하면, 새 url반환
             String targetUrl = imageUpload(file);
             product.setImageUrl(targetUrl);
-            return;
         }
         //없으면 기존 이미지 유지
 
