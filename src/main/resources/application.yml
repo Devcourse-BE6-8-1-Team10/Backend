@@ -29,6 +29,13 @@ logging:
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
 
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
 custom:
   gcp:
     bucket: cafe-image-storage-2025
