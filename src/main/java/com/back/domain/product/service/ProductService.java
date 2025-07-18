@@ -28,17 +28,20 @@ public class ProductService {
     @Value("${custom.gcp.bucket}")
     private String bucketName;
 
-    public String imageUpload(MultipartFile file, long id) throws IOException {
-
+    //google 저장소 객체생성
+    private Storage getStorage() throws IOException {
         String keyFileName = "cafeimagestorage-e894a0d38084.json";
         InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
 
-        Storage storage = StorageOptions.newBuilder()
+        return StorageOptions.newBuilder()
                 .setCredentials(GoogleCredentials.fromStream(keyFile))
                 .build()
                 .getService();
+    }
 
-        String fileName = id + file.getOriginalFilename();
+    //파일업로드 및 url생성
+    private String uploadFileToGCS(MultipartFile file, String fileName) throws IOException {
+        Storage storage = getStorage();
 
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
                 .setContentType(file.getContentType())
@@ -46,14 +49,17 @@ public class ProductService {
 
         storage.create(blobInfo, file.getInputStream());
 
-        // Public URL 만들기
-        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + fileName;
-
-        return imageUrl;
+        return "https://storage.googleapis.com/" + bucketName + "/" + fileName;
     }
 
-    public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
+    //수정시 이미지 업로드
+    public String imageUpload(MultipartFile file, long id) throws IOException {
+        String fileName = id + file.getOriginalFilename();
+        return uploadFileToGCS(file, fileName);
+    }
 
+    //상품생성시
+    public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
         // 1. 우선 상품을 imageUrl 없이 저장
         Product product = create(
                 reqBody.productName(),
@@ -65,31 +71,13 @@ public class ProductService {
         );
 
         // 2. 파일이 비어있으면 바로 반환
-        if (file == null || file.isEmpty()) {
+        if (file == null || file.isEmpty() || file.getSize() < 100) {
             return product;
         }
-
-        String keyFileName = "cafeimagestorage-e894a0d38084.json";
-        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
-
-        Storage storage = StorageOptions.newBuilder()
-                .setCredentials(GoogleCredentials.fromStream(keyFile))
-                .build()
-                .getService();
-
         String fileName = product.getId() + file.getOriginalFilename();
-
-        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, fileName)
-                .setContentType(file.getContentType())
-                .build();
-
-        storage.create(blobInfo, file.getInputStream());
-
-        // Public URL 만들기
-        String imageUrl = "https://storage.googleapis.com/" + bucketName + "/" + fileName;
+        String imageUrl = uploadFileToGCS(file, fileName);
 
         product.setImageUrl(imageUrl);
-
         return productRepository.save(product);
     }
 
