@@ -137,4 +137,14 @@ public class Member {
                 .findFirst();
     }
 
+    public void modifyInfo(String email, String password, String name) {
+        if (name != null && !name.isBlank())
+            this.name = name;
+
+        if (email != null && !email.isBlank())
+            this.email = email;
+
+        if (password != null && !password.isBlank())
+            this.password = password;
+    }
 }
