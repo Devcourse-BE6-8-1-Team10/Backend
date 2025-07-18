@@ -3,12 +3,12 @@ package com.back.domain.product.service;
 import com.back.domain.product.controller.ProductController;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.repository.ProductRepository;
-import com.back.global.exception.ServiceException;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,12 +26,21 @@ import java.util.UUID;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private String bucketName = "cafe-image-storage-2025";
+    @Value("${custom.gcp.bucket}")
+    private String bucketName;
 
     public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
 
         if (file == null || file.isEmpty()) {
-            throw new ServiceException(400,"파일이 첨부되지 않았습니다.");
+            return productRepository.save(
+                    Product.builder()
+                            .productName(reqBody.productName())
+                            .price(reqBody.price())
+                            .imageUrl("") // 여기에 넣기
+                            .category(reqBody.category())
+                            .description(reqBody.description())
+                            .orderable(reqBody.orderable())
+                            .build());
         }
 
         String keyFileName = "cafeimagestorage-e894a0d38084.json";
