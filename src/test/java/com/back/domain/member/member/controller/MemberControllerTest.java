@@ -9,6 +9,7 @@ import com.back.global.exception.ServiceException;
 import com.back.standard.util.Ut;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Slf4j
 class MemberControllerTest {
     @Autowired
     private MemberService memberService;
@@ -353,8 +355,8 @@ class MemberControllerTest {
                 member,
                 "서울시 강남구 테헤란로 123",
                 List.of(
-                        new OrderItemParam(1L, 2),
-                        new OrderItemParam(2L, 1)
+                        new OrderItemParam(1L, 2), // 아메리카노(Ice)
+                        new OrderItemParam(2L, 1) // 카페라떼(Hot)
                 )
         );
 
@@ -362,7 +364,7 @@ class MemberControllerTest {
                 member,
                 "서울시 강남구 역삼로 456",
                 List.of(
-                        new OrderItemParam(3L, 1)
+                        new OrderItemParam(3L, 1) // 카푸치노(Ice)
                 )
         );
 
@@ -401,9 +403,12 @@ class MemberControllerTest {
 
         assertThat(dataArray).hasSize(2); // 주문 2건
 
+        log.debug("첫번째 주문 아이템 길이: {}", order1.getOrderItems().size());
+        log.debug("두번째 주문 아이템 길이: {}", order2.getOrderItems().size());
+
         // 첫 번째 주문의 주문 아이템들
         JsonNode orderItems1 = dataArray.get(1).get("orderItems");
-        assertThat(orderItems1).hasSize(2);
+        assertThat(orderItems1).hasSize(order1.getOrderItems().size());
         assertThat(orderItems1.get(0).get("productName").asText()).isEqualTo("아메리카노(Ice)");
         assertThat(orderItems1.get(0).get("productId").asLong()).isEqualTo(1L);
         assertThat(orderItems1.get(0).get("count").asInt()).isEqualTo(2);

@@ -36,6 +36,6 @@ public class OrderItem {
         this.count = count;
         this.price = price;
 
-        order.addOrderItem(this);
+        //order.addOrderItem(this);
     }
 }
