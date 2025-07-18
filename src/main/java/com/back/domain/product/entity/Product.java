@@ -20,7 +20,6 @@ public class Product extends BaseEntityWithTime {
     @Column(length = 100, unique = true)
     private String productName;
     private int price;
-    @Column(length = 100, unique = true)
     private String imageUrl;
     @Column(length = 30)
     private String category;

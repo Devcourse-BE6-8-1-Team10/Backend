@@ -26,6 +26,7 @@ import java.io.IOException;
 @Tag(name = "ProductController", description = "상품 API")
 @RequiredArgsConstructor
 @RestController
+//@RequestMapping("/api")
 public class ProductController {
     private final ProductService productService;
 
@@ -59,22 +60,6 @@ public class ProductController {
                              boolean orderable) {
     }
 
-    @PostMapping("/products/upload")
-    @Transactional
-    public RsData<ProductDto> createWithImage(
-            @RequestPart("data") @Valid GCSReqBody reqBody,
-            @RequestPart("file") MultipartFile file
-    ) throws IOException {
-
-        Product product = productService.uploadObject(reqBody,file);
-
-        return new RsData<>(
-                201,
-                "%d번 상품이 생성되었습니다.".formatted(product.getId()),
-                new ProductDto(product)
-        );
-    }
-
     @Operation(
             summary = "상품 단건 조회",
             description = "상품 ID기반 상품의 상세 정보 조회"
@@ -93,34 +78,21 @@ public class ProductController {
                 new ProductDto(product)
         );
     }
-    record CreateReqBody(@NotBlank String productName,
-                         @Positive int price,
-                         @NotBlank String imageUrl,
-                         @NotBlank String category,
-                         @NotBlank String description,
-                         boolean orderable) {
 
-
-    }
-
-    @Operation(
-            summary = "상품 생성",
-            description = "일단 상품 생성" //나중에 사용자 관리자 로직 ->관리자가 상품생성가능
-    )
     @PostMapping("/products")
     @Transactional
-    public RsData<ProductDto> create(@RequestBody @Valid CreateReqBody reqBody) {
+    public RsData<ProductDto> createWithImage(
+            @RequestPart("data") @Valid GCSReqBody reqBody,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws IOException {
 
-        Product product = productService.create(reqBody.productName(), reqBody.price(),
-                reqBody.imageUrl(), reqBody.category(), reqBody.description(), reqBody.orderable());
-
+        Product product=productService.uploadObject(reqBody, file);
 
         return new RsData<>(
                 201,
                 "%d번 상품이 생성되었습니다.".formatted(product.getId()),
                 new ProductDto(product)
         );
-
     }
 
     record ModifyReqBody(@NotBlank String productName,
@@ -130,7 +102,7 @@ public class ProductController {
                          @NotBlank String description,
                          boolean orderable) {
 
-    } //boolean은 false
+    }
 
     @Operation(
             summary = "상품 수정",

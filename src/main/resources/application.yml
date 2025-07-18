@@ -6,6 +6,7 @@ spring:
           location: classpath:cafeimagestorage-e894a0d38084.json
         project-id: cafeimagestorage
 
+
   profiles:
     active: dev
   jpa:
@@ -29,6 +30,8 @@ springdoc:
   default-produces-media-type: application/json;charset=UTF-8
 
 custom:
+  gcp:
+    bucket: cafe-image-storage-2025
   jwt:
     secretKey: driojtvjoksp[erjkbzijbtslijslijfkl3249u0d40j3ijt09fjq839awj4m90
   accessToken:
