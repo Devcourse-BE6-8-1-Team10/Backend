@@ -1,13 +1,8 @@
 package com.back.domain.order.entity;
 
 import com.back.domain.product.entity.Product;
-import com.back.global.entity.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 
@@ -16,7 +11,14 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class OrderItem extends BaseEntity {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class OrderItem {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Setter(AccessLevel.PRIVATE)
+    @EqualsAndHashCode.Include
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Order order;
