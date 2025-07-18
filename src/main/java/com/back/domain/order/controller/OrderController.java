@@ -4,6 +4,7 @@ import com.back.domain.member.member.entity.Member;
 import com.back.domain.order.dto.OrderDto;
 import com.back.domain.order.dto.OrderDtoWithSpecific;
 import com.back.domain.order.dto.OrderItemCreateReqBody;
+import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.service.OrderService;
 import com.back.global.rq.Rq;
@@ -11,10 +12,8 @@ import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,19 +29,24 @@ public class OrderController {
     private final Rq rq;
 
     public record OrderCreateReqBody(
-            @NotBlank @Email String customerEmail,
             @NotBlank String customerAddress,
             @NotEmpty List<OrderItemCreateReqBody> orderItems
     ) {
     }
 
+
     @PostMapping
     @Operation(summary = "주문 생성") // (더미 상품/멤버 사용)
     public RsData<OrderDto> createOrder(@Valid @RequestBody OrderCreateReqBody reqBody) {
+        Member actor = rq.getActor();
+        List<OrderItemParam> orderItemParams = reqBody.orderItems()
+                .stream()
+                .map(OrderItemCreateReqBody::toParam)
+                .toList();
         Order order = orderService.createOrder(
-                reqBody.customerEmail(),
+                actor,
                 reqBody.customerAddress(),
-                reqBody.orderItems()
+                orderItemParams
         );
         return new RsData<>(
                 201,

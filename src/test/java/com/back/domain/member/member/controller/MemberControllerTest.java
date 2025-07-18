@@ -2,7 +2,7 @@ package com.back.domain.member.member.controller;
 
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
-import com.back.domain.order.dto.OrderItemCreateReqBody;
+import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.service.OrderService;
 import com.back.global.exception.ServiceException;
 import jakarta.servlet.http.Cookie;
@@ -347,19 +347,19 @@ class MemberControllerTest {
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
 
         orderService.createOrder(
-                member.getEmail(),
+                member,
                 "서울시 강남구 테헤란로 123",
                 List.of(
-                        new OrderItemCreateReqBody(1L, 2),
-                        new OrderItemCreateReqBody(2L, 1)
+                        new OrderItemParam(1L, 2),
+                        new OrderItemParam(2L, 1)
                 )
         );
 
         orderService.createOrder(
-                member.getEmail(),
+                member,
                 "서울시 강남구 역삼로 456",
                 List.of(
-                        new OrderItemCreateReqBody(3L, 1)
+                        new OrderItemParam(3L, 1)
                 )
         );
 
