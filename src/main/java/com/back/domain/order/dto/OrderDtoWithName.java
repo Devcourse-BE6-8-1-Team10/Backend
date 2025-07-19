@@ -37,7 +37,9 @@ public record OrderDtoWithName(
                 order.getCreatedDate(),
                 order.getStatus(),
                 order.getCustomerAddress(),
-                null
+                order.getOrderItems().stream()
+                        .map(OrderItemDto::new)
+                        .toList()
         );
     }
 
