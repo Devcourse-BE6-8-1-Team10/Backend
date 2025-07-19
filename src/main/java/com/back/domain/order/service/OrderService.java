@@ -58,17 +58,16 @@ public class OrderService {
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
 
         Member customer = order.getCustomer();
-        if (customer == null) {
+        if (customer == null)
             throw new ServiceException(400, "주문에 고객 정보가 없습니다.");
-        }
-        else if (!customer.getId().equals(actor.getId())) {
+
+        // 주문 취소 권한 체크 : 주문한 고객이거나, 관리자일 때만 취소 가능
+        else if (!customer.getId().equals(actor.getId()) && !actor.isAdmin())
             throw new ServiceException(403, "%d번 주문 취소 권한이 없습니다.".formatted(order.getId()));
 
-        }
-
-        if (order.isCanceled()) {
+        if (order.isCanceled())
             throw new ServiceException(409, "이미 취소된 주문입니다.");
-        }
+
 
         order.changeStatus(OrderStatus.CANCELED);
         return order;
@@ -79,13 +78,11 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
 
-        if (!order.getCustomer().getId().equals(actor.getId())) {
+        if (!order.getCustomer().getId().equals(actor.getId()))
             throw new ServiceException(403, "%d번 주문 주소 변경 권한이 없습니다.".formatted(order.getId()));
-        }
 
-        if (order.isCanceled()) {
+        if (order.isCanceled())
             throw new ServiceException(409, "이미 취소된 주문입니다.");
-        }
 
         order.changeCustomerAddress(newAddress);
         orderRepository.save(order);

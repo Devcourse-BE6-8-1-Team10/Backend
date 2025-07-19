@@ -51,4 +51,6 @@ public class AdmOrderController {
                 new OrderDtoWithSpecific(order));
     }
 
+    // 주문 처리 상태 변경 (취소 포함)
+
 }
