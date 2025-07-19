@@ -99,6 +99,24 @@ public class AddressController {
         );
     }
 
+    @PutMapping("/{addressId}")
+    @Operation(summary = "주소 수정")
+    public RsData<AddressSubmitResBody> updateAddress(
+            @PathVariable Long addressId,
+            @Valid @RequestBody AddressSubmitReqBody reqBody
+    ) {
+        Member member = rq.getActor();
+        addressService.updateAddress(member, addressId, reqBody.content());
 
+        return new RsData<>(
+                200,
+                "주소가 수정됐습니다.",
+                new AddressSubmitResBody(
+                        addressId,
+                        reqBody.content(),
+                        new MemberDto(member)
+                )
+        );
+    }
 
 }

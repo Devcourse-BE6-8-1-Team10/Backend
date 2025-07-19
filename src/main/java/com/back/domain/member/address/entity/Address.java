@@ -47,4 +47,8 @@ public class Address {
         this.isDefault = isDefault;
     }
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
 }
