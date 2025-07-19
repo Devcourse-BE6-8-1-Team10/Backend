@@ -1,6 +1,6 @@
 package com.back.domain.product.service;
 
-import com.back.domain.product.controller.ProductController;
+import com.back.domain.product.controller.AdmProductController;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.repository.ProductRepository;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -60,7 +60,7 @@ public class ProductService {
     }
 
     //상품생성시
-    public Product uploadObject(ProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
+    public Product uploadObject(AdmProductController.GCSReqBody reqBody, MultipartFile file) throws IOException {
         // 1. 우선 상품을 imageUrl 없이 저장
         Product product = create(
                 reqBody.productName(),
