@@ -68,7 +68,9 @@ public class AdmOrderControllerTest {
                     .andExpect(jsonPath("$.data[0].createdDate").value(Matchers.startsWith(order.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))))
                     .andExpect(jsonPath("$.data[%d].customerName".formatted(i)).value(order.getCustomer().getName()))
                     .andExpect(jsonPath("$.data[%d].state".formatted(i)).value(order.getStatus().name()))
-                    .andExpect(jsonPath("$.data[%d].customerAddress".formatted(i)).value(order.getCustomerAddress()));
+                    .andExpect(jsonPath("$.data[%d].customerAddress".formatted(i)).value(order.getCustomerAddress()))
+                    .andExpect(jsonPath("$.data[%d].orderItems", i).isArray())
+                    .andExpect(jsonPath("$.data[%d].orderItems.length()".formatted(i)).value(order.getOrderItems().size()));
         }
     }
 
