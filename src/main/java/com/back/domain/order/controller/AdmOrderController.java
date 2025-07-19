@@ -1,6 +1,6 @@
 package com.back.domain.order.controller;
 
-import com.back.domain.order.dto.OrderDto;
+import com.back.domain.order.dto.OrderDtoWithName;
 import com.back.domain.order.dto.OrderDtoWithSpecific;
 import com.back.domain.order.entity.Order;
 import com.back.domain.order.service.OrderService;
@@ -27,10 +27,10 @@ public class AdmOrderController {
 
     @GetMapping("")
     @Operation(summary = "주문 목록 조회")
-    public RsData<List<OrderDto>> getOrders() {
+    public RsData<List<OrderDtoWithName>> getOrders() {
         List<Order> orders = orderService.getAllOrders();
-        List<OrderDto> dtos = orders.stream()
-                .map(OrderDto::new)
+        List<OrderDtoWithName> dtos = orders.stream()
+                .map(OrderDtoWithName::new)
                 .toList();
         return new RsData<>(
                 200,
