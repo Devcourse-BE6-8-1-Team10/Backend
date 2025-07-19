@@ -78,10 +78,7 @@ public class Member {
 
     // ------------ [메서드] ------------
     public boolean isAdmin() {
-        if ("system@gmail.com".equals(email)) return true;
-        if ("admin@gmail.com".equals(email)) return true;
-
-        return false;
+        return isAdmin;
     }
 
     public void updateName(String newName) {
