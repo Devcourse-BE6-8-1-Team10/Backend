@@ -50,7 +50,6 @@ public class AdmOrderControllerTest {
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(orders.size()));
 
-        // 4. 각 주문 데이터 검증
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             resultActions
@@ -69,6 +68,47 @@ public class AdmOrderControllerTest {
         ResultActions resultActions = mockMvc
                 .perform(
                         get("/api/adm/orders")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("주문 상세 조회 - 관리자")
+    @WithUserDetails("admin@gmail.com")
+    void t3() throws Exception {
+
+        List<Order> orders = orderService.getAllOrders();
+        Order targetOrder = orders.get(0);
+
+
+        ResultActions resultActions = mockMvc
+                .perform(get("/api/adm/orders/" + targetOrder.getId() + "/detail"))
+                .andDo(print());
+
+
+        resultActions
+                .andExpect(handler().handlerType(AdmOrderController.class))
+                .andExpect(handler().methodName("getOrderDetail"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주문 상세 조회에 성공했습니다."))
+                .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
+                .andExpect(jsonPath("$.data.customerEmail").value(targetOrder.getCustomer().getEmail()))
+                .andExpect(jsonPath("$.data.customerAddress").value(targetOrder.getCustomerAddress()))
+                .andExpect(jsonPath("$.data.state").value(targetOrder.getStatus().name()))
+                .andExpect(jsonPath("$.data.orderItems").isArray());
+    }
+
+    @Test
+    @DisplayName("주문 상세 조회 - 권한 없음")
+    @WithUserDetails("user2@gmail.com")
+    void t4() throws Exception {
+        ResultActions resultActions = mockMvc
+                .perform(
+                        get("/api/adm/orders/1/detail")
                 )
                 .andDo(print());
 

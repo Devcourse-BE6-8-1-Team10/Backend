@@ -55,17 +55,6 @@ public class OrderController {
         );
     }
 
-    // 주문 상세 조회
-    @GetMapping("/{orderId}/detail")
-    @Operation(summary = "주문 상세 조회")
-    public RsData<OrderDtoWithSpecific> getOrderDetail(@PathVariable Long orderId) {
-        Order order = orderService.getOrderEntity(orderId);
-        return new RsData<>(
-                200,
-                "주문 상세 조회에 성공했습니다.",
-                new OrderDtoWithSpecific(order));
-    }
-
     //주문 취소
     @DeleteMapping("/{orderId}")
     @Operation(summary = "주문 취소")
