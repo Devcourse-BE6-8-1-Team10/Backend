@@ -29,7 +29,7 @@ public class AddressController {
     ) {
     }
 
-    record AddressSubmitResBody(
+    record AddressResBody(
             Long id,
             String content,
             MemberDto member
@@ -38,7 +38,7 @@ public class AddressController {
 
     @PostMapping
     @Operation(summary = "주소 등록")
-    public RsData<AddressSubmitResBody>  submitAddress(
+    public RsData<AddressResBody>  submitAddress(
             @Valid @RequestBody AddressSubmitReqBody reqBody
     ) {
         Member member = rq.getActor();
@@ -47,7 +47,7 @@ public class AddressController {
         return new RsData<>(
                 201,
                 "주소가 등록됐습니다.",
-                new AddressSubmitResBody(
+                new AddressResBody(
                         address.getId(),
                         address.getContent(),
                         new MemberDto(address.getMember())
@@ -99,6 +99,43 @@ public class AddressController {
         );
     }
 
+    @PutMapping("/{addressId}")
+    @Operation(summary = "주소 수정")
+    public RsData<AddressResBody> updateAddress(
+            @PathVariable Long addressId,
+            @Valid @RequestBody AddressSubmitReqBody reqBody
+    ) {
+        Member member = rq.getActor();
+        Address address = addressService.updateAddress(member, addressId, reqBody.content());
 
+        return new RsData<>(
+                200,
+                "주소가 수정됐습니다.",
+                new AddressResBody(
+                        addressId,
+                        address.getContent(),
+                        new MemberDto(member)
+                )
+        );
+    }
+
+    @PutMapping("/{addressId}/default")
+    @Operation(summary = "기본 주소 설정")
+    public RsData<Void> setDefaultAddress(
+            @PathVariable Long addressId
+    ) {
+        Member member = rq.getActor();
+
+        // 모든 주소의 기본 설정을 해제
+        Address address = addressService.setDefaultAddress(member, addressId);
+
+        return new RsData<>(
+                200,
+                "%s번 주소가 기본 주소로 설정됐습니다.".formatted(
+                        address.getId()
+                ),
+                null
+        );
+    }
 
 }
