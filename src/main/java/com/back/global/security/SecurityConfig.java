@@ -23,11 +23,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/favicon.ico").permitAll() // 파비콘 접근 허용 (검색 엔진 최적화)
                         .requestMatchers("/h2-console/**").permitAll() // H2 콘솔 접근 허용
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()        // 상품 목록은 로그인 없어도 볼수있음
                         .requestMatchers("/api/members/login", "/api/members/logout").permitAll() // 로그인, 로그아웃은 인증 없이 허용
                         .requestMatchers(HttpMethod.POST, "/api/members/join").permitAll() // 회원 가입은 인증 없이 허용
                         .requestMatchers("/api/adm/**").hasRole("ADMIN") // 관리자 API는 ADMIN 권한이 있는 사용자만 접근 허용
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()        // 상품 목록은 로그인 없어도 볼수있음
-                        .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()   // 상품 상세는 로그인 없어도 볼수있음
                         .requestMatchers("/api/**").authenticated() // 나머지 API는 인증된 사용자만 접근 허용
                         .anyRequest().permitAll()
                 )
