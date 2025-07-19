@@ -79,7 +79,6 @@ public class OrderController {
     ) {
         Member actor = rq.getActor();
         Order updatedOrder = orderService.updateOrderAddress(orderId, reqBody.newAddress(), actor);
-        orderService.updateOrderAddress(orderId, reqBody.newAddress(), actor);
         return new RsData<>(
                 200,
                 "%s번 주문 주소가 변경되었습니다.".formatted(orderId),
