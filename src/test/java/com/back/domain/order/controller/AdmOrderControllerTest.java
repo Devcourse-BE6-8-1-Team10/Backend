@@ -39,7 +39,7 @@ public class AdmOrderControllerTest {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private MemberService userService;
+    private MemberService memberService;
 
     @Test
     @DisplayName("주문 목록 조회 - 관리자")
@@ -131,7 +131,7 @@ public class AdmOrderControllerTest {
     @WithUserDetails("admin@gmail.com")
     void t5() throws Exception {
         // given : 주문 상태를 변경할 주문을 준비
-        Member user = userService.findByEmail("user1@gmail.com")
+        Member user = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
         Order targetOrder = orderService.createOrder(
                 user,
@@ -173,7 +173,7 @@ public class AdmOrderControllerTest {
     @WithUserDetails("admin@gmail.com")
     void t6() throws Exception {
         // given : 주문 상태를 변경할 주문을 준비
-        Member user = userService.findByEmail("user1@gmail.com")
+        Member user = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
         Order targetOrder = orderService.createOrder(
                 user,
@@ -214,7 +214,7 @@ public class AdmOrderControllerTest {
     @WithUserDetails("admin@gmail.com")
     void t7() throws Exception {
         // given : 주문 상태를 변경할 주문을 준비
-        Member user = userService.findByEmail("user1@gmail.com")
+        Member user = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
         Order targetOrder = orderService.createOrder(
                 user,
@@ -255,7 +255,7 @@ public class AdmOrderControllerTest {
     @WithUserDetails("admin@gmail.com")
     void t8() throws Exception {
         // given : 주문 상태를 변경할 주문을 준비
-        Member user = userService.findByEmail("user1@gmail.com")
+        Member user = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
         Order targetOrder = orderService.createOrder(
                 user,
@@ -296,7 +296,7 @@ public class AdmOrderControllerTest {
     @WithUserDetails("admin@gmail.com")
     void t9() throws Exception {
         // given : 주문 상태를 변경할 주문을 준비
-        Member user = userService.findByEmail("user1@gmail.com")
+        Member user = memberService.findByEmail("user1@gmail.com")
                 .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
         Order targetOrder = orderService.createOrder(
                 user,
