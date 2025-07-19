@@ -538,4 +538,52 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.code").value(403))
                 .andExpect(jsonPath("$.message").value("해당 주문에 대한 권한이 없습니다."));
     }
+
+    @Test
+    @DisplayName("회원 패스워드 검증")
+    @WithUserDetails("user1@gmail.com")
+    void verifyPassword() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/members/verify-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "password": "1234"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("verifyPassword"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("비밀번호가 일치합니다."));
+    }
+
+    @Test
+    @DisplayName("회원 패스워드 검증 - 잘못된 비밀번호")
+    @WithUserDetails("user1@gmail.com")
+    void verifyPassword_wrong() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/members/verify-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "password": "wrong_password"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("verifyPassword"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
+    }
 }
