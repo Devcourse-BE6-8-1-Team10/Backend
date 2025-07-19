@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(Long orderId, Member actor) {
+    public Order cancelOrder(Long orderId, Member actor) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
 
@@ -70,10 +71,11 @@ public class OrderService {
         }
 
         order.changeStatus(OrderStatus.CANCELED);
+        return order;
     }
 
     @Transactional
-    public void updateOrderAddress(Long orderId, String newAddress, Member actor) {
+    public Order updateOrderAddress(Long orderId, String newAddress, Member actor) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
 
@@ -87,5 +89,10 @@ public class OrderService {
 
         order.changeCustomerAddress(newAddress);
         orderRepository.save(order);
+        return order;
+    }
+
+    public Optional<Order> findLatest() {
+        return orderRepository.findFirstByOrderByIdDesc();
     }
 }

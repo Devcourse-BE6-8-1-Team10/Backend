@@ -89,5 +89,13 @@ public class TestInitData {
                         new OrderItemParam(1L, 4)
                 )
         );
+        var canceledOrder = orderService.createOrder(
+                user1,
+                "서울시 은평구",
+                List.of(
+                        new OrderItemParam(1L, 1)
+                )
+        );
+        orderService.cancelOrder(canceledOrder.getId(), user1);
     }
 }
