@@ -85,7 +85,7 @@ public class AdmOrderControllerTest {
 
 
         ResultActions resultActions = mockMvc
-                .perform(get("/api/adm/orders/1/detail"))
+                .perform(get("/api/adm/orders/" + targetOrder.getId() + "/detail"))
                 .andDo(print());
 
 
@@ -108,7 +108,7 @@ public class AdmOrderControllerTest {
     void t4() throws Exception {
         ResultActions resultActions = mockMvc
                 .perform(
-                        get("/api/adm/orders")
+                        get("/api/adm/orders/1/detail")
                 )
                 .andDo(print());
 
