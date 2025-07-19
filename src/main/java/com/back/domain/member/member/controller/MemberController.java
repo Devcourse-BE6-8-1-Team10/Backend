@@ -5,6 +5,7 @@ import com.back.domain.member.member.dto.MemberUpdateDto;
 import com.back.domain.member.member.dto.MemberWithAuthDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import com.back.domain.order.dto.UserOrderDetailResponseBody;
 import com.back.domain.order.dto.UserOrderResponseBody;
 import com.back.global.exception.ServiceException;
 import com.back.global.rq.Rq;
@@ -179,7 +180,7 @@ public class MemberController {
     }
 
     @GetMapping("/orders")
-    @Operation(summary = "회원 주문 내역 전체 조회")
+    @Operation(summary = "회원의 주문 내역 전체 조회")
     public RsData<UserOrderResponseBody[]> getMemberOrders() {
         Member actor = rq.getActor();
         Member member = memberService.findById(actor.getId())
@@ -193,6 +194,25 @@ public class MemberController {
                 resBody
         );
     }
+
+    @GetMapping("/orders/{orderId}")
+    @Operation(summary = "회원의 특정 주문 내역 상세 조회")
+    public RsData<UserOrderDetailResponseBody> getMemberOrderDetail(
+            @PathVariable Long orderId
+    ) {
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
+
+        UserOrderDetailResponseBody resBody = memberService.getMemberOrderDetail(member, orderId);
+
+        return new RsData<>(
+                200,
+                "회원 주문 상세 내역이 조회됐습니다.",
+                resBody
+        );
+    }
+
 
 
 
