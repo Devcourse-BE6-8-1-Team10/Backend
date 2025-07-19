@@ -1,13 +1,19 @@
 package com.back.domain.order.controller;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
+import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
+import com.back.domain.order.entity.OrderStatus;
 import com.back.domain.order.service.OrderService;
+import com.back.global.exception.ServiceException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,6 +38,8 @@ public class AdmOrderControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private MemberService userService;
 
     @Test
     @DisplayName("주문 목록 조회 - 관리자")
@@ -114,5 +124,170 @@ public class AdmOrderControllerTest {
 
         resultActions
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 주문완료")
+    @WithUserDetails("admin@gmail.com")
+    void t5() throws Exception {
+        // given : 주문 상태를 변경할 주문을 준비
+        Member user = userService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Order targetOrder = orderService.createOrder(
+                user,
+                "서울시 강남구 역삼동",
+                List.of(new OrderItemParam(1L, 2)
+                ) // 상품 ID 1번, 수량 2개
+        );
+        targetOrder.changeStatus(OrderStatus.CANCELED); // 초기 상태를 CANACELED으로 설정
+
+        // when : 주문 상태를 변경하는 요청 전송
+        ResultActions resultActions = mockMvc
+                .perform(
+                        put("/api/adm/orders/" + targetOrder.getId() + "/status")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "status": "ORDERED"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        // then : 응답 검증
+        resultActions
+                .andExpect(handler().handlerType(AdmOrderController.class))
+                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
+                .andExpect(jsonPath("$.data.status").value("ORDERED"));
+
+        // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
+        assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.ORDERED);
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 배송중")
+    @WithUserDetails("admin@gmail.com")
+    void t6() throws Exception {
+        // given : 주문 상태를 변경할 주문을 준비
+        Member user = userService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Order targetOrder = orderService.createOrder(
+                user,
+                "서울시 강남구 역삼동",
+                List.of(new OrderItemParam(1L, 2)
+                ) // 상품 ID 1번, 수량 2개
+        );
+
+        // when : 주문 상태를 변경하는 요청 전송
+        ResultActions resultActions = mockMvc
+                .perform(
+                        put("/api/adm/orders/" + targetOrder.getId() + "/status")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "status": "SHIPPING"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        // then : 응답 검증
+        resultActions
+                .andExpect(handler().handlerType(AdmOrderController.class))
+                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
+                .andExpect(jsonPath("$.data.status").value("SHIPPING"));
+
+        // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
+        assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.SHIPPING);
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 배송완료")
+    @WithUserDetails("admin@gmail.com")
+    void t7() throws Exception {
+        // given : 주문 상태를 변경할 주문을 준비
+        Member user = userService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Order targetOrder = orderService.createOrder(
+                user,
+                "서울시 강남구 역삼동",
+                List.of(new OrderItemParam(1L, 2)
+                ) // 상품 ID 1번, 수량 2개
+        );
+
+        // when : 주문 상태를 변경하는 요청 전송
+        ResultActions resultActions = mockMvc
+                .perform(
+                        put("/api/adm/orders/" + targetOrder.getId() + "/status")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "status": "COMPLETED"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        // then : 응답 검증
+        resultActions
+                .andExpect(handler().handlerType(AdmOrderController.class))
+                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
+                .andExpect(jsonPath("$.data.status").value("COMPLETED"));
+
+        // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
+        assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.COMPLETED);
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 주문취소")
+    @WithUserDetails("admin@gmail.com")
+    void t8() throws Exception {
+        // given : 주문 상태를 변경할 주문을 준비
+        Member user = userService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Order targetOrder = orderService.createOrder(
+                user,
+                "서울시 강남구 역삼동",
+                List.of(new OrderItemParam(1L, 2)
+                ) // 상품 ID 1번, 수량 2개
+        );
+
+        // when : 주문 상태를 변경하는 요청 전송
+        ResultActions resultActions = mockMvc
+                .perform(
+                        put("/api/adm/orders/" + targetOrder.getId() + "/status")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "status": "CANCELED"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        // then : 응답 검증
+        resultActions
+                .andExpect(handler().handlerType(AdmOrderController.class))
+                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
+                .andExpect(jsonPath("$.data.status").value("CANCELED"));
+
+        // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
+        assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.CANCELED);
     }
 }
