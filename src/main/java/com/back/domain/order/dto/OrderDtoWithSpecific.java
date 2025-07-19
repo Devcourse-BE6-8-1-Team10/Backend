@@ -3,6 +3,7 @@ package com.back.domain.order.dto;
 import com.back.domain.order.entity.Order;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +15,8 @@ public record OrderDtoWithSpecific(
         Long id,
         @Schema(description = "주문자 이메일")
         String customerEmail,
+        @Schema(description = "주문자 이름")
+        @NonNull String customerName,
         @Schema(description = "주문 배송 주소")
         String customerAddress,
         @Schema(description = "주문 상태 코드", example = "ORDERED", allowableValues = {"ORDERED", "PAID", "SHIPPING", "COMPLETED", "CANCELED"})
@@ -29,6 +32,7 @@ public record OrderDtoWithSpecific(
         this(
                 order.getId(),
                 order.getCustomer().getEmail(),
+                order.getCustomer().getName(),
                 order.getCustomerAddress(),
                 order.getStatus().name(),
                 order.getCreatedDate(),

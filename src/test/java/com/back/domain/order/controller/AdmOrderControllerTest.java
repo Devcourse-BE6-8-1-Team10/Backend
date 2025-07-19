@@ -66,6 +66,7 @@ public class AdmOrderControllerTest {
                     .andExpect(jsonPath("$.data[%d].id".formatted(i)).value(order.getId()))
                     .andExpect(jsonPath("$.data[%d].customerEmail".formatted(i)).value(order.getCustomer().getEmail()))
                     .andExpect(jsonPath("$.data[0].createdDate").value(Matchers.startsWith(order.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))))
+                    .andExpect(jsonPath("$.data[%d].customerName".formatted(i)).value(order.getCustomer().getName()))
                     .andExpect(jsonPath("$.data[%d].state".formatted(i)).value(order.getStatus().name()))
                     .andExpect(jsonPath("$.data[%d].customerAddress".formatted(i)).value(order.getCustomerAddress()));
         }
@@ -107,6 +108,7 @@ public class AdmOrderControllerTest {
                 .andExpect(jsonPath("$.message").value("주문 상세 조회에 성공했습니다."))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
                 .andExpect(jsonPath("$.data.customerEmail").value(targetOrder.getCustomer().getEmail()))
+                .andExpect(jsonPath("$.data.customerName").value(targetOrder.getCustomer().getName()))
                 .andExpect(jsonPath("$.data.customerAddress").value(targetOrder.getCustomerAddress()))
                 .andExpect(jsonPath("$.data.state").value(targetOrder.getStatus().name()))
                 .andExpect(jsonPath("$.data.orderItems").isArray());
