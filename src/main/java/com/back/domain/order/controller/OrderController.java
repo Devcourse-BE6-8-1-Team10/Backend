@@ -2,7 +2,6 @@ package com.back.domain.order.controller;
 
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.order.dto.OrderDto;
-import com.back.domain.order.dto.OrderDtoWithSpecific;
 import com.back.domain.order.dto.OrderItemCreateReqBody;
 import com.back.domain.order.dto.OrderItemParam;
 import com.back.domain.order.entity.Order;
@@ -55,16 +54,15 @@ public class OrderController {
         );
     }
 
-    //주문 취소
     @DeleteMapping("/{orderId}")
     @Operation(summary = "주문 취소")
-    public RsData<Void> cancelOrder(@PathVariable Long orderId) {
+    public RsData<OrderDto> cancelOrder(@PathVariable Long orderId) {
         Member actor = rq.getActor();
-        orderService.cancelOrder(orderId, actor);
+        Order order = orderService.cancelOrder(orderId, actor);
         return new RsData<>(
                 200,
                 "%d번 주문이 취소되었습니다.".formatted(orderId),
-                null
+                new OrderDto(order)
         );
     }
 
@@ -75,16 +73,16 @@ public class OrderController {
 
     @PutMapping("/{orderId}/address")
     @Operation(summary = "주문 주소 변경")
-    public RsData<Void> updateOrderAddress(
+    public RsData<String> updateOrderAddress(
             @PathVariable Long orderId,
             @Valid @RequestBody OrderUpdateAddressReqBody reqBody
     ) {
         Member actor = rq.getActor();
-        orderService.updateOrderAddress(orderId, reqBody.newAddress(), actor);
+        Order updatedOrder = orderService.updateOrderAddress(orderId, reqBody.newAddress(), actor);
         return new RsData<>(
                 200,
                 "%s번 주문 주소가 변경되었습니다.".formatted(orderId),
-                null
+                updatedOrder.getCustomerAddress()
         );
     }
 }
