@@ -106,14 +106,14 @@ public class AddressController {
             @Valid @RequestBody AddressSubmitReqBody reqBody
     ) {
         Member member = rq.getActor();
-        addressService.updateAddress(member, addressId, reqBody.content());
+        Address address = addressService.updateAddress(member, addressId, reqBody.content());
 
         return new RsData<>(
                 200,
                 "주소가 수정됐습니다.",
                 new AddressResBody(
                         addressId,
-                        reqBody.content(),
+                        address.getContent(),
                         new MemberDto(member)
                 )
         );

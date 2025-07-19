@@ -44,7 +44,7 @@ public class AddressService {
         addressRepository.delete(address);
     }
 
-    public void updateAddress(Member member, Long addressId, @NotBlank String content) {
+    public Address updateAddress(Member member, Long addressId, @NotBlank String content) {
 
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ServiceException(404, "주소를 찾을 수 없습니다."));
@@ -56,6 +56,8 @@ public class AddressService {
             throw new ServiceException(400, "주소 내용은 비어있을 수 없습니다.");
 
         address.updateContent(content);
+
+        return addressRepository.save(address);
     }
 
     public Address setDefaultAddress(Member member, Long addressId) {
@@ -70,8 +72,7 @@ public class AddressService {
 
         // 선택한 주소를 기본 주소로 설정
         address.setDefault(true);
-        addressRepository.save(address);
 
-        return address;
+        return addressRepository.save(address);
     }
 }
