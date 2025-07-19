@@ -12,6 +12,8 @@ public record OrderItemDto(
         @NonNull Long orderId,
         @Schema(description = "상품 ID")
         @NonNull Long productId,
+        @Schema(description = "상품명")
+        @NonNull String productName,
         @Schema(description = "수량")
         @NonNull int count,
         @Schema(description = "낱개 가격")
@@ -22,6 +24,7 @@ public record OrderItemDto(
                 orderItem.getId(),
                 orderItem.getOrder().getId(),
                 orderItem.getProduct().getId(),
+                orderItem.getProduct().getProductName(),
                 orderItem.getCount(),
                 orderItem.getPrice()
         );
