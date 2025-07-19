@@ -9,6 +9,7 @@ import com.back.domain.order.repository.OrderRepository;
 import com.back.domain.product.entity.Product;
 import com.back.domain.product.repository.ProductRepository;
 import com.back.global.exception.ServiceException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,5 +92,20 @@ public class OrderService {
 
     public Optional<Order> findLatest() {
         return orderRepository.findFirstByOrderByIdDesc();
+    }
+
+    public Order updateOrderStatus(Long orderId, @NotNull String status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(404, "해당 주문이 존재하지 않습니다."));
+
+        OrderStatus orderStatus;
+        try {
+            orderStatus = OrderStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new ServiceException(400, "유효하지 않은 주문 상태입니다.");
+        }
+
+        order.changeStatus(orderStatus);
+        return orderRepository.save(order);
     }
 }

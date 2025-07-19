@@ -157,12 +157,12 @@ public class AdmOrderControllerTest {
         // then : 응답 검증
         resultActions
                 .andExpect(handler().handlerType(AdmOrderController.class))
-                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
-                .andExpect(jsonPath("$.data.status").value("ORDERED"));
+                .andExpect(jsonPath("$.data.status").value("주문완료"));
 
         // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
         assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.ORDERED);
@@ -198,12 +198,12 @@ public class AdmOrderControllerTest {
         // then : 응답 검증
         resultActions
                 .andExpect(handler().handlerType(AdmOrderController.class))
-                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
-                .andExpect(jsonPath("$.data.status").value("SHIPPING"));
+                .andExpect(jsonPath("$.data.status").value("배송중"));
 
         // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
         assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.SHIPPING);
@@ -239,12 +239,12 @@ public class AdmOrderControllerTest {
         // then : 응답 검증
         resultActions
                 .andExpect(handler().handlerType(AdmOrderController.class))
-                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
-                .andExpect(jsonPath("$.data.status").value("COMPLETED"));
+                .andExpect(jsonPath("$.data.status").value("배송완료"));
 
         // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
         assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.COMPLETED);
@@ -280,12 +280,12 @@ public class AdmOrderControllerTest {
         // then : 응답 검증
         resultActions
                 .andExpect(handler().handlerType(AdmOrderController.class))
-                .andExpect(handler().methodName("updateOrderState"))
+                .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("주문 상태가 변경되었습니다."))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
-                .andExpect(jsonPath("$.data.status").value("CANCELED"));
+                .andExpect(jsonPath("$.data.status").value("주문취소"));
 
         // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
         assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.CANCELED);
@@ -322,7 +322,7 @@ public class AdmOrderControllerTest {
         resultActions
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("잘못된 주문 상태입니다."))
+                .andExpect(jsonPath("$.message").value("유효하지 않은 주문 상태입니다."))
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 }
