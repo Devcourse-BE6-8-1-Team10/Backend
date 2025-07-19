@@ -181,16 +181,16 @@ public class ProductControllerTest {
 
 
     private ResultActions writeRequest(String productName, int price, String imageUrl,
-                                       String category,String description, boolean orderable ) throws Exception {
+                                       String category, String description, boolean orderable) throws Exception {
         String json = """
-        {
-            "productName": "%s",
-            "price": %d,
-            "category": "%s",
-            "description": "%s",
-            "orderable": %b
-        }
-        """.formatted(productName, price, category, description, orderable);
+                {
+                    "productName": "%s",
+                    "price": %d,
+                    "category": "%s",
+                    "description": "%s",
+                    "orderable": %b
+                }
+                """.formatted(productName, price, category, description, orderable);
 
         MockMultipartFile data = new MockMultipartFile(
                 "data", "data.json", "application/json", json.getBytes(StandardCharsets.UTF_8)
@@ -202,13 +202,13 @@ public class ProductControllerTest {
         );
 
 
-        return  mvc.
+        return mvc.
                 perform(
-                    multipart("/products")
-                        .file(data)
-                        .file(file)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-        ).andDo(print());
+                        multipart("/products")
+                                .file(data)
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                ).andDo(print());
     }
 
     @Test
@@ -358,7 +358,31 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
     }
 
+    @Test
+    @DisplayName("주문 가능 불가능")
+    void order1() throws Exception {
+        long productId = 1;
 
+        ResultActions resultActions = mvc
+                .perform(
+                        put("/products/%d/orderable".formatted(productId))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "orderable" : false
+                                        }
+                                        """)
+
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(handler().methodName("isOrderable"))
+                .andExpect(jsonPath("$.message").value("%d번 상품이 주문 불가능하게 변경되었습니다.".formatted(productId)));
+    }
 
 
 }

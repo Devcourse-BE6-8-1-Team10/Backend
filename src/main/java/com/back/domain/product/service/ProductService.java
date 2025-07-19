@@ -152,4 +152,8 @@ public class ProductService {
     public void delete(Product product) {
         productRepository.delete(product);
     }
+
+    public void updateOrderable(Product product, boolean orderable) {
+        product.setOrderable(orderable);
+    }
 }
