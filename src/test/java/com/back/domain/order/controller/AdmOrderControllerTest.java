@@ -290,4 +290,39 @@ public class AdmOrderControllerTest {
         // 추가 검증: 주문 상태가 실제로 변경되었는지 확인
         assertThat(targetOrder.getStatus()).isEqualTo(OrderStatus.CANCELED);
     }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 잘못된 상태")
+    @WithUserDetails("admin@gmail.com")
+    void t9() throws Exception {
+        // given : 주문 상태를 변경할 주문을 준비
+        Member user = userService.findByEmail("user1@gmail.com")
+                .orElseThrow(() -> new ServiceException(404, "회원이 존재하지 않습니다."));
+        Order targetOrder = orderService.createOrder(
+                user,
+                "서울시 강남구 역삼동",
+                List.of(new OrderItemParam(1L, 2)
+                ) // 상품 ID 1번, 수량 2개
+        );
+
+        // when : 잘못된 주문 상태를 변경하는 요청 전송
+        ResultActions resultActions = mockMvc
+                .perform(
+                        put("/api/adm/orders/" + targetOrder.getId() + "/status")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "status": "INVALID_STATUS"
+                                        }
+                                        """.stripIndent())
+                )
+                .andDo(print());
+
+        // then : 응답 검증
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("잘못된 주문 상태입니다."))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
 }
