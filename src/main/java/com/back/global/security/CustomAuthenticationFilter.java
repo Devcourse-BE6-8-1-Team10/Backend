@@ -62,7 +62,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String apiKey;
         String accessToken;
 
-        // API 키와 액세스 토큰을 헤더에서 가져오기
+        // API 키와 액세스 토큰을 헤더나 쿠키에서 가져오기
         String headerAuthorization = rq.getHeader("Authorization", "");
 
         if (!headerAuthorization.isBlank()) {
@@ -93,6 +93,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         Member member = null;
         boolean isAccessTokenValid = false;
 
+        // accessToken이 존재하는 경우, 해당 토큰의 유효성을 검사
         if (isAccessTokenExists){
             Map<String, Object> payload = memberService.payload(accessToken);
 

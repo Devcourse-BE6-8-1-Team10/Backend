@@ -36,7 +36,8 @@ public class AuthTokenService {
         int id = (int) parsedPayload.get("id");
         String email = (String) parsedPayload.get("email");
         String name = (String) parsedPayload.get("name");
+        boolean isAdmin = (boolean) parsedPayload.get("isAdmin");
 
-        return Map.of("id", id, "email", email, "name", name);
+        return Map.of("id", id, "email", email, "name", name, "isAdmin", isAdmin);
     }
 }
