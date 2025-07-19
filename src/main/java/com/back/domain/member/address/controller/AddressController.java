@@ -29,7 +29,7 @@ public class AddressController {
     ) {
     }
 
-    record AddressSubmitResBody(
+    record AddressResBody(
             Long id,
             String content,
             MemberDto member
@@ -38,7 +38,7 @@ public class AddressController {
 
     @PostMapping
     @Operation(summary = "주소 등록")
-    public RsData<AddressSubmitResBody>  submitAddress(
+    public RsData<AddressResBody>  submitAddress(
             @Valid @RequestBody AddressSubmitReqBody reqBody
     ) {
         Member member = rq.getActor();
@@ -47,7 +47,7 @@ public class AddressController {
         return new RsData<>(
                 201,
                 "주소가 등록됐습니다.",
-                new AddressSubmitResBody(
+                new AddressResBody(
                         address.getId(),
                         address.getContent(),
                         new MemberDto(address.getMember())
@@ -101,7 +101,7 @@ public class AddressController {
 
     @PutMapping("/{addressId}")
     @Operation(summary = "주소 수정")
-    public RsData<AddressSubmitResBody> updateAddress(
+    public RsData<AddressResBody> updateAddress(
             @PathVariable Long addressId,
             @Valid @RequestBody AddressSubmitReqBody reqBody
     ) {
@@ -111,7 +111,7 @@ public class AddressController {
         return new RsData<>(
                 200,
                 "주소가 수정됐습니다.",
-                new AddressSubmitResBody(
+                new AddressResBody(
                         addressId,
                         reqBody.content(),
                         new MemberDto(member)
@@ -121,7 +121,7 @@ public class AddressController {
 
     @PutMapping("/{addressId}/default")
     @Operation(summary = "기본 주소 설정")
-    public RsData<AddressSubmitResBody> setDefaultAddress(
+    public RsData<Void> setDefaultAddress(
             @PathVariable Long addressId
     ) {
         Member member = rq.getActor();
