@@ -213,7 +213,28 @@ public class MemberController {
         );
     }
 
+    record MemberPasswordVerifyReqBody(
+            @NotBlank
+            @Size(min = 2, max = 20)
+            String password
+    ) { }
 
+    @PostMapping("/verify-password")
+    @Operation(summary = "회원 비밀번호 검증")
+    public RsData<Void> verifyPassword(
+            @Valid @RequestBody MemberPasswordVerifyReqBody reqBody
+    ) {
+        Member actor = rq.getActor();
+        Member member = memberService.findById(actor.getId())
+                .orElseThrow(() -> new ServiceException(404, "존재하지 않는 회원입니다."));
 
+        memberService.checkPassword(member, reqBody.password());
 
+        return new RsData<>(
+                200,
+                "비밀번호가 검증됐습니다.",
+                null
+        );
+
+    }
 }

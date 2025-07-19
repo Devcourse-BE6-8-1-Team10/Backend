@@ -83,7 +83,7 @@ class MemberControllerTest {
                                 .content("""
                                         {
                                             "email": "system@gmail.com",
-                                            "password": "1234"
+                                            "password": "12345678"
                                         }
                                         """.stripIndent())
                 )
@@ -549,7 +549,7 @@ class MemberControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "password": "1234"
+                                            "password": "12345678"
                                         }
                                         """.stripIndent())
                 )
@@ -560,7 +560,7 @@ class MemberControllerTest {
                 .andExpect(handler().methodName("verifyPassword"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("비밀번호가 일치합니다."));
+                .andExpect(jsonPath("$.message").value("비밀번호가 검증됐습니다."));
     }
 
     @Test

@@ -43,19 +43,19 @@ public class TestInitData {
     @Transactional
     public void work1() {
         if (memberService.count() > 0) return;
-        Member memberSystem = memberService.joinAdmin("system@gmail.com", "1234", "시스템");
+        Member memberSystem = memberService.joinAdmin("system@gmail.com", "12345678", "시스템");
         memberSystem.modifyApiKey(memberSystem.getEmail());
 
-        Member memberAdmin = memberService.joinAdmin("admin@gmail.com", "1234", "관리자");
+        Member memberAdmin = memberService.joinAdmin("admin@gmail.com", "12345678", "관리자");
         memberAdmin.modifyApiKey(memberAdmin.getEmail());
 
-        Member user1 = memberService.join("user1@gmail.com", "1234", "유저1");
+        Member user1 = memberService.join("user1@gmail.com", "12345678", "유저1");
         user1.modifyApiKey(user1.getEmail());
 
-        Member user2 = memberService.join("user2@gmail.com", "1234", "유저2");
+        Member user2 = memberService.join("user2@gmail.com", "12345678", "유저2");
         user2.modifyApiKey(user2.getEmail());
 
-        Member user3 = memberService.join("user3@gmail.com", "1234", "유저3");
+        Member user3 = memberService.join("user3@gmail.com", "12345678", "유저3");
         user3.modifyApiKey(user3.getEmail());
     }
 
