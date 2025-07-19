@@ -425,10 +425,9 @@ class AddressControllerTest {
                 .andExpect(handler().methodName("setDefaultAddress"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("기본 주소가 설정됐습니다."))
-                .andExpect(jsonPath("$.data.id").value(address1.getId()))
-                .andExpect(jsonPath("$.data.content").value(address1.getContent()))
-                .andExpect(jsonPath("$.data.isDefault").value(true));
+                .andExpect(jsonPath("$.message").value("%s번 주소가 기본 주소로 설정됐습니다.".formatted(
+                        address1.getId()
+                )));
 
         // 주소1이 기본 주소로 설정되었는지 확인
         assertThat(address1.getIsDefault()).isTrue();

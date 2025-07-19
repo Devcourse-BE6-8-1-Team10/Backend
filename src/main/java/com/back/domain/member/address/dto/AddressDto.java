@@ -4,7 +4,7 @@ import com.back.domain.member.address.entity.Address;
 import org.springframework.lang.NonNull;
 
 public record AddressDto(
-        @NonNull String address,
+        @NonNull String content,
         @NonNull Boolean isDefault
 ) {
     public AddressDto(Address address) {

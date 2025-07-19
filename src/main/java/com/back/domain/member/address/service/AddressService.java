@@ -57,4 +57,21 @@ public class AddressService {
 
         address.updateContent(content);
     }
+
+    public Address setDefaultAddress(Member member, Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ServiceException(404, "주소를 찾을 수 없습니다."));
+
+        if (!address.getMember().equals(member))
+            throw new ServiceException(403, "다른 유저의 주소는 수정할 수 없습니다.");
+
+        // 모든 주소의 기본 설정을 해제
+        addressRepository.findAllByMember(member).forEach(addr -> addr.setDefault(false));
+
+        // 선택한 주소를 기본 주소로 설정
+        address.setDefault(true);
+        addressRepository.save(address);
+
+        return address;
+    }
 }

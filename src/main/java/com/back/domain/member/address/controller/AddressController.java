@@ -119,4 +119,23 @@ public class AddressController {
         );
     }
 
+    @PutMapping("/{addressId}/default")
+    @Operation(summary = "기본 주소 설정")
+    public RsData<AddressSubmitResBody> setDefaultAddress(
+            @PathVariable Long addressId
+    ) {
+        Member member = rq.getActor();
+
+        // 모든 주소의 기본 설정을 해제
+        Address address = addressService.setDefaultAddress(member, addressId);
+
+        return new RsData<>(
+                200,
+                "%s번 주소가 기본 주소로 설정됐습니다.".formatted(
+                        address.getId()
+                ),
+                null
+        );
+    }
+
 }
