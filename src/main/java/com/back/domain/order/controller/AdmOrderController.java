@@ -8,6 +8,7 @@ import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,11 +62,13 @@ public class AdmOrderController {
     // 주문 처리 상태 변경 (주문완료, 배송중, 배송완료, 주문취소)
     @PutMapping("/{orderId}/status")
     @Operation(summary = "주문 상태 변경", description = "주문 상태를 변경합니다. 예: ORDERED, SHIPPING, COMPLETED, CANCELED")
-    public RsData<OrderStatusResBody> updateOrderStatus(@PathVariable Long orderId,@RequestBody OrderStatusReqBody reqBody) {
+    public RsData<OrderStatusResBody> updateOrderStatus(
+            @PathVariable Long orderId,
+            @Valid @RequestBody OrderStatusReqBody reqBody) {
         Order order = orderService.updateOrderStatus(orderId, reqBody.status());
         return new RsData<>(
                 200,
-                "%s번 주문의 상태가 %s로 변경되었습니다.".formatted(orderId, reqBody.status()),
+                "%s번 주문의 상태가 %s로 변경되었습니다.".formatted(orderId, order.getStatus().getDescription()),
                 new OrderStatusResBody(
                         order.getId(),
                         order.getStatus().getDescription()

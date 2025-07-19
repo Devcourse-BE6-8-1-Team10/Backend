@@ -160,7 +160,7 @@ public class AdmOrderControllerTest {
                 .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), "주문완료")))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
                 .andExpect(jsonPath("$.data.status").value("주문완료"));
 
@@ -201,7 +201,7 @@ public class AdmOrderControllerTest {
                 .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), "배송중")))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
                 .andExpect(jsonPath("$.data.status").value("배송중"));
 
@@ -242,7 +242,7 @@ public class AdmOrderControllerTest {
                 .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), "배송완료")))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
                 .andExpect(jsonPath("$.data.status").value("배송완료"));
 
@@ -283,7 +283,7 @@ public class AdmOrderControllerTest {
                 .andExpect(handler().methodName("updateOrderStatus"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), targetOrder.getStatus())))
+                .andExpect(jsonPath("$.message").value("%s번 주문의 상태가 %s로 변경되었습니다.".formatted(targetOrder.getId(), "주문취소")))
                 .andExpect(jsonPath("$.data.id").value(targetOrder.getId()))
                 .andExpect(jsonPath("$.data.status").value("주문취소"));
 
